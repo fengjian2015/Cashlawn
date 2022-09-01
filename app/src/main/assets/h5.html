@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>JS交互demo</title>
+    <style type="text/css">
+            button{
+                width:100px;
+                height: 60px;
+            }
+        </style>
+    <script>
+        //***************以下代码Android调用JS代码*********************
+        function appCallback(msg){
+           alert("回调成功"+msg);
+           console.log('----------调用js方法'+msg);
+        }
+
+        //***************以下代码JS调用Android代码*********************
+         function appInvoke(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appCopyClip","appData":{"value":"内容内容"}}';
+             console.log('复制'+s);
+            appAndroid.appData(s);
+         }
+
+        function getUserInfo(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appUserInfo","appData":{"value":""}}';
+             console.log('用户信息'+s);
+            appAndroid.appData(s);
+         }
+
+          function signOut(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appSignOut","appData":{"value":""}}';
+             console.log('用户信息'+s);
+            appAndroid.appData(s);
+         }
+
+
+
+          function invokeContact(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appContactInfo","appData":{"value":""}}';
+             console.log('通讯录'+s);
+            appAndroid.appData(s);
+         }
+
+
+          function invokeDeviceInfo(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appDeviceInfo","appData":{"value":""}}';
+             console.log('设备信息'+s);
+            appAndroid.appData(s);
+         }
+
+           function invokeInstallationInfo(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appInstallationInfo","appData":{"value":""}}';
+             console.log('设备信息'+s);
+            appAndroid.appData(s);
+         }
+
+           function invokeLocationInfo(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appLocationInfo","appData":{"value":""}}';
+             console.log('位置信息'+s);
+            appAndroid.appData(s);
+         }
+         function invokeSmsInfo(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appSmsInfo","appData":{"value":""}}';
+             console.log('短信信息'+s);
+            appAndroid.appData(s);
+         }
+
+          function invokeAlbumInfo(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appAlbumInfo","appData":{"value":""}}';
+             console.log('相册信息'+s);
+            appAndroid.appData(s);
+         }
+           function invokeSelectContact(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appSelectContact","appData":{"value":""}}';
+             console.log('选择通讯录'+s);
+            appAndroid.appData(s);
+         }
+         function invokeCallPhone(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appCallPhone","appData":{"value":"154555645454"}}';
+             console.log('拨打电话'+s);
+            appAndroid.appData(s);
+         }
+
+          function invokeAppsFlyer(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appAppsFlyer","appData":{"eventName":"cacpersonal_photo"}}';
+             console.log('埋点数据'+s);
+            appAndroid.appData(s);
+         }
+
+          function invokeTackPhoto(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appTackPhoto","appData":{}}';
+             console.log('拍照上传'+s);
+            appAndroid.appData(s);
+         }
+           function forwardOutside(){
+            var s='{"appActionId":"invoke_1574215326410_3","appAction":"appForward","appData":{"value":"https://www.baidu.com"}}';
+             console.log('跳转新的页面'+s);
+            appAndroid.appData(s);
+         }
+
+          function invokeTime(){
+            var s='{"appActionId":"1574215326410","appAction":"appServiceTime","appData":{"value":"1662004817000"}}';
+             console.log('跳转新的页面'+s);
+            appAndroid.appData(s);
+         }
+    </script>
+</head>
+<body>
+<button type="button" id="button1" onclick="appInvoke()">Android复制到剪切板</button>
+<button type="button" id="button2" onclick="getUserInfo()">获取用户信息</button>
+<button type="button" id="button3" onclick="signOut()">退出登录</button>
+<button type="button" id="button5" onclick="invokeContact()">通讯录信息收集</button>
+<button type="button" id="button6" onclick="invokeDeviceInfo()">设备信息收集</button>
+
+<button type="button" id="button8" onclick="invokeLocationInfo()">位置信息收集</button>
+<button type="button" id="button9" onclick="invokeSmsInfo()">短信信息收集</button>
+<button type="button" id="button10" onclick="invokeAlbumInfo()">相册信息收集</button>
+<button type="button" id="button11" onclick="invokeSelectContact()">选择通讯录信息</button>
+<button type="button" id="button12" onclick="invokeCallPhone()">拨打电话</button>
+<button type="button" id="button13" onclick="invokeAppsFlyer()">埋点数据</button>
+<button type="button" id="button14" onclick="invokeTackPhoto()">拍照上传</button>
+
+<button type="button" id="button7" onclick="invokeInstallationInfo()">安装信息收集</button>
+
+<button type="button" id="button15" onclick="forwardOutside()">跳转新的页面</button>
+<button type="button" id="button16" onclick="invokeTime()">获取服务器时间戳</button>
+<span class="box">打开相机
+ <input type="file" accept="image/*" capture="camera">
+</span>
+</body>
+</html>

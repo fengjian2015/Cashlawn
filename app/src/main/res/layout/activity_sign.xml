@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    tools:context=".view.SignActivity">
+
+    <FrameLayout
+        android:id="@+id/topFrame"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="@color/common_title_bg"
+        android:minHeight="48dp">
+
+        <ImageView
+            android:id="@+id/topBack"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="10dp"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            android:id="@+id/topTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingHorizontal="20dp"
+            android:singleLine="true"
+            android:text="Sign in"
+            android:textColor="#ff333333"
+            android:textSize="18sp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvWelcome"
+        android:layout_width="103dp"
+        android:layout_height="33dp"
+        android:text="Welcome"
+        android:textColor="#ff292a2b"
+        android:textSize="24sp"
+        android:layout_below="@+id/topFrame"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="32dp"
+        />
+    <TextView
+        android:id="@+id/tvHintWelcome"
+        android:layout_width="252dp"
+        android:layout_height="24dp"
+        android:text="Mobile Phone Number"
+        android:textColor="#ff797878"
+        android:textSize="14sp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="9dp"
+        android:layout_below="@+id/tvWelcome"
+        />
+    <LinearLayout
+        android:id="@+id/llInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvHintWelcome"
+        android:layout_marginTop="31dp"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="32dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+            <TextView
+                android:layout_width="34dp"
+                android:layout_height="17dp"
+                android:text="+234"
+                android:textColor="#ff666666"
+                android:textSize="14sp"
+                />
+            <EditText
+                android:id="@+id/etNumber"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:textColor="#292a2b"
+                android:textSize="16sp"
+                android:layout_marginLeft="11dp"
+                android:background="@null"
+                android:inputType="number"
+                android:textColorHint="#999999"
+                android:textCursorDrawable="@drawable/et_cursor_login"
+                android:hint="Please input Phone Number"
+                />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@mipmap/ic_count"
+                android:layout_marginHorizontal="10dp"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tvLine"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="2dp"
+            android:background="#979797"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pll"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:layout_below="@+id/llInput"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginTop="21dp"
+        >
+        <CheckBox
+            android:id="@+id/pcb"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:button="@null"
+            android:background="@drawable/selector_check"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"
+            />
+        <TextView
+            android:id="@+id/ptv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="I have read and agreed  to the &lt;Privacy Policy&gt; &amp; &lt;Customer Agreement&gt;"
+            android:textColor="#ff999999"
+            android:textSize="12sp"
+            />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btUpgrade"
+        android:layout_width="match_parent"
+        android:layout_height="57dp"
+        android:layout_below="@+id/pll"
+        android:layout_marginHorizontal="36dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/shape_button_later"
+        android:text="SIGN IN"
+        android:textColor="#ffffffff"
+        android:textSize="16sp" />
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"></View>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="205dp"
+            android:background="@mipmap/ic_sgin_bg1"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="190dp"
+            android:layout_marginTop="15dp"
+            android:background="@mipmap/ic_sgin_bg2" />
+    </RelativeLayout>
+</LinearLayout>

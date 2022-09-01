@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="268dp"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/ic_update_dialog_bg"
+        android:orientation="vertical"
+        android:paddingBottom="15dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="163dp"
+            android:gravity="center"
+            android:text="New version available"
+            android:textColor="#fff69800"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="25dp"
+            android:layout_marginTop="22dp"
+            android:gravity="center"
+            android:text="Please upgrade to the latest version."
+            android:textColor="#ff333333"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/btUpgrade"
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginHorizontal="36dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/shape_button_upgrade"
+            android:text="Upgrade"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/btLater"
+            android:layout_width="match_parent"
+            android:layout_height="49dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginHorizontal="36dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/shape_button_later"
+            android:text="Later"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</RelativeLayout>
