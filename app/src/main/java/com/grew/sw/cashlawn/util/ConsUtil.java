@@ -20,6 +20,8 @@ public class ConsUtil {
     public static final String KEY_URL_1 = "KEY_URL_1";
     public static final String KEY_URL_2 = "KEY_URL_2";
     public static final String KEY_SERVICE_TIME = "KEY_SERVICE_TIME";
+    public static final String KEY_DIFFERENCE_TIME = "KEY_DIFFERENCE_TIME";
+
     public static final String KEY_BATTERY_STATUS="KEY_BATTERY_STATUS";
     public static final String KEY_BATTERY_IS_USB="KEY_BATTERY_IS_USB";
     public static final String KEY_BATTERY_IS_AC="KEY_BATTERY_IS_AC";

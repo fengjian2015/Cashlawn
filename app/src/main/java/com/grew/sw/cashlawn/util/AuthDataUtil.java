@@ -60,7 +60,6 @@ public class AuthDataUtil {
                 contactInfoModel.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                 contactInfoModel.setLast_update_times(ComUtil.stringToLong(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP))));
                 contactInfoModel.setSource(getContactAccount(contactInfoModel.getContact_id()));
-
                 contactInfoModels.add(contactInfoModel);
             }
             cursor.close();

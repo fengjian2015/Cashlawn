@@ -8,25 +8,18 @@ import java.util.Date;
 
 public class DateUtil {
     public static final String FMT_DATE_TIME = "yyyy-MM-dd HH:mm:ss";
-    public static final String FMT_DATE_TIME1 = "yyyy:MM:dd HH:mm:ss";
-    private static long differenceTime;
 
     /**
      * 获取服务器时间戳
      */
     public static long getServerTimestamp() {
-        if (getDifferenceTime() == 0) {
+        Long aLong = SparedUtils.getLong(ConsUtil.KEY_SERVICE_TIME);
+        Long elapsedRealtime = SparedUtils.getLong(ConsUtil.KEY_DIFFERENCE_TIME);
+        if (aLong < 10) {
             return System.currentTimeMillis();
+        }else {
+            return (SystemClock.elapsedRealtime() - elapsedRealtime) + aLong;
         }
-        return differenceTime + SystemClock.elapsedRealtime();
-    }
-
-    private static long getDifferenceTime() {
-        if (differenceTime == 0) {
-            Long aLong = SparedUtils.getLong(ConsUtil.KEY_SERVICE_TIME);
-            differenceTime = aLong < 10  ? 0 : aLong;
-        }
-        return differenceTime;
     }
 
     public static void initTime(String s) {
@@ -40,8 +33,9 @@ public class DateUtil {
         if (serviceTimestamp == 0){
             return;
         }
-        differenceTime = serviceTimestamp - SystemClock.elapsedRealtime();
-        SparedUtils.putLong(ConsUtil.KEY_SERVICE_TIME, differenceTime);
+        long elapsedRealtime = SystemClock.elapsedRealtime();
+        SparedUtils.putLong(ConsUtil.KEY_SERVICE_TIME, serviceTimestamp);
+        SparedUtils.putLong(ConsUtil.KEY_DIFFERENCE_TIME, elapsedRealtime);
     }
 
     /**
@@ -59,13 +53,4 @@ public class DateUtil {
         return "";
     }
 
-    /**
-     * 获取当前日期
-     *
-     * @param format
-     * @return
-     */
-    public static String getCurrentDate() {
-        return new SimpleDateFormat(FMT_DATE_TIME).format(getServerTimestamp());
-    }
 }

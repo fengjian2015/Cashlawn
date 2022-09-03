@@ -457,48 +457,55 @@ public class WebJsBridge {
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
                         if (all && SpecialPermissionUtil.isLocServiceEnable()) {
-                            Location location = null;
-                            LocationManager locationManager = (LocationManager) App.get().getSystemService(Context.LOCATION_SERVICE);
-                            if (locationManager == null) {
-                                callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
-                                return;
-                            }
-                            List<String> providers = locationManager.getProviders(true);
-                            for (String provider : providers) {
-                                @SuppressLint("MissingPermission")
-                                Location l = locationManager.getLastKnownLocation(provider);
-                                if (l == null) {
-                                    continue;
+                            new Thread(() -> {
+                                Location location = null;
+                                LocationManager locationManager = (LocationManager) App.get().getSystemService(Context.LOCATION_SERVICE);
+                                if (locationManager == null) {
+                                    callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
+                                    return;
                                 }
-                                if (location == null || l.getAccuracy() < location.getAccuracy()) {
-                                    location = l;
-                                }
-                            }
-                            List<LocationBean> geoBeans = new ArrayList<>();
-                            LocationBean geoBean = new LocationBean();
-                            geoBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
-                            if (location != null) {
-                                geoBean.setLatitude(location.getLatitude() + "");
-                                geoBean.setLongitude(location.getLongitude() + "");
-                                try {
-                                    Geocoder geocoder = new Geocoder(Utils.getApp(), Locale.getDefault());
-                                    List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                                    if (addresses.size() > 0) {
-                                        Address address = addresses.get(0);
-                                        if (address !=null) {
-                                            geoBean.setGps_address_province(address.getAdminArea());
-                                            geoBean.setGps_address_city(address.getLocality());
-                                            geoBean.setGps_address_street(address.getSubAdminArea());
-                                            geoBean.setGps_address_address(address.getFeatureName());
-                                        }
+                                List<String> providers = locationManager.getProviders(true);
+                                for (String provider : providers) {
+                                    @SuppressLint("MissingPermission")
+                                    Location l = locationManager.getLastKnownLocation(provider);
+                                    if (l == null) {
+                                        continue;
                                     }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                    if (location == null || l.getAccuracy() < location.getAccuracy()) {
+                                        location = l;
+                                    }
+                                }
+                                List<LocationBean> geoBeans = new ArrayList<>();
+                                LocationBean geoBean = new LocationBean();
+                                geoBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
+                                if (location != null) {
+                                    geoBean.setLatitude(location.getLatitude() + "");
+                                    geoBean.setLongitude(location.getLongitude() + "");
+                                    try {
+                                        Geocoder geocoder = new Geocoder(Utils.getApp(), Locale.getDefault());
+                                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                                        if (addresses.size() > 0) {
+                                            Address address = addresses.get(0);
+                                            if (address !=null) {
+                                                LogUtils.d("地址："+address.toString());
+                                                geoBean.setGps_address_province(address.getAdminArea());
+                                                geoBean.setGps_address_city(address.getLocality());
+                                                if (TextUtils.isEmpty(address.getThoroughfare())) {
+                                                    geoBean.setGps_address_street(address.getFeatureName());
+                                                }else {
+                                                    geoBean.setGps_address_street(address.getThoroughfare());
+                                                }
+                                                geoBean.setGps_address_address(address.getFeatureName());
+                                            }
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                                 geoBeans.add(geoBean);
-                            }
-                            LogUtils.d("位置信息：" + geoBeans.toString());
-                            pushAuthData(jsBridgeModel, null, null, null, geoBeans, null, null);
+                                LogUtils.d("位置信息：" + geoBeans.toString());
+                                pushAuthData(jsBridgeModel, null, null, null, geoBeans, null, null);
+                            }).start();
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                         }
