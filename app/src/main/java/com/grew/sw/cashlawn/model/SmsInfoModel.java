@@ -3,41 +3,51 @@ package com.grew.sw.cashlawn.model;
 import java.io.Serializable;
 
 public class SmsInfoModel implements Serializable {
-    private String receive_mobile;//接受手机号
-    private String sms_type;//发送类型 10-发送  20-接收
+    private long create_time;//抓取时间
+    private String phone;//对方名称
+    private String content;//短信内容
+    private long time;//发送时间
+    private int type;//1:'Receive',2:'Send',3:'ReceiveDraft',5:'SendDraft'
     private String address;//临时记录查询到的电话号码
-    private String send_mobile;//发送手机号
-    private String sms_content;//短信内容
-    private String contactor_name;//对方名称  senderid或者备注或者接收号码
-    private String send_time;//短信时间 yy-mm-dd hh:mm:ss
 
-    @Override
-    public String toString() {
-        return "SmsInfoModel{" +
-                "receive_mobile='" + receive_mobile + '\'' +
-                ", sms_type='" + sms_type + '\'' +
-                ", address='" + address + '\'' +
-                ", send_mobile='" + send_mobile + '\'' +
-                ", sms_content='" + sms_content + '\'' +
-                ", contactor_name='" + contactor_name + '\'' +
-                ", send_time='" + send_time + '\'' +
-                '}';
+    public long getCreate_time() {
+        return create_time;
     }
 
-    public String getReceive_mobile() {
-        return receive_mobile;
+    public void setCreate_time(long create_time) {
+        this.create_time = create_time;
     }
 
-    public void setReceive_mobile(String receive_mobile) {
-        this.receive_mobile = receive_mobile;
+    public String getPhone() {
+        return phone;
     }
 
-    public String getSms_type() {
-        return sms_type;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public void setSms_type(String sms_type) {
-        this.sms_type = sms_type;
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getAddress() {
@@ -48,35 +58,15 @@ public class SmsInfoModel implements Serializable {
         this.address = address;
     }
 
-    public String getSend_mobile() {
-        return send_mobile;
-    }
-
-    public void setSend_mobile(String send_mobile) {
-        this.send_mobile = send_mobile;
-    }
-
-    public String getSms_content() {
-        return sms_content;
-    }
-
-    public void setSms_content(String sms_content) {
-        this.sms_content = sms_content;
-    }
-
-    public String getContactor_name() {
-        return contactor_name;
-    }
-
-    public void setContactor_name(String contactor_name) {
-        this.contactor_name = contactor_name;
-    }
-
-    public String getSend_time() {
-        return send_time;
-    }
-
-    public void setSend_time(String send_time) {
-        this.send_time = send_time;
+    @Override
+    public String toString() {
+        return "SmsInfoModel{" +
+                "create_time=" + create_time +
+                ", phone='" + phone + '\'' +
+                ", content='" + content + '\'' +
+                ", time=" + time +
+                ", type=" + type +
+                ", address='" + address + '\'' +
+                '}';
     }
 }

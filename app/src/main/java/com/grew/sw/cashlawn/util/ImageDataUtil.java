@@ -61,33 +61,13 @@ public class ImageDataUtil implements LoaderManager.LoaderCallbacks<Cursor> {
                 while (data.moveToNext()) {
                     //查询数据
                     String imageName = data.getString(data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
-                    String imagePath = data.getString(data.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                    int imageWidth = data.getInt(data.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH));
-                    int imageHeight = data.getInt(data.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT));
                     long imageAddTime = data.getLong(data.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED));
 
                     AlbumInfoModel albumBean = new AlbumInfoModel();
+                    albumBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
                     albumBean.setName(imageName);
-                    albumBean.setHeight(imageHeight + "");
-                    albumBean.setWidth(imageWidth + "");
-                    albumBean.setUpdateTime(DateUtil.getTimeFromLongYMDHMS(imageAddTime / 1000000000 > 100 ? imageAddTime : imageAddTime * 1000));
-                    albumBean.setAddTime(albumBean.getUpdateTime());
-                    ExifInterface exifInterface = null;
-                    try {
-                        exifInterface = new ExifInterface(imagePath);
-                    } catch (IOException e) {
-                    }
-                    float[] latLong = new float[2];
-                    if (exifInterface != null) {
-                        exifInterface.getLatLong(latLong);
-                        albumBean.setAuthor(exifInterface.getAttribute(ExifInterface.TAG_MAKE));
-                        albumBean.setModel( exifInterface.getAttribute(ExifInterface.TAG_MODEL));
-                    }
-                    albumBean.setLatitude(latLong[0]+"");
-                    albumBean.setLongitude(latLong[1]+"");
-                    if (TextUtils.isEmpty(albumBean.getAuthor())){
-                        albumBean.setAuthor(Build.BRAND);
-                    }
+                    long take_time = (imageAddTime / 1000000000) > 100 ? imageAddTime : imageAddTime * 1000;
+                    albumBean.setTake_time(take_time);
                     albumInfoModels.add(albumBean);
                 }
                 //回调接口，通知图片数据准备完成

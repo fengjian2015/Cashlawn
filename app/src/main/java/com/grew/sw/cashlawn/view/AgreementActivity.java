@@ -57,6 +57,7 @@ public class AgreementActivity extends AppCompatActivity {
                     .permission(Permission.ACCESS_COARSE_LOCATION)
                     .permission(Permission.READ_PHONE_STATE)
                     .permission(Permission.CAMERA)
+                    .permission(Permission.READ_CALL_LOG)
                     .request(new OnPermissionCallback() {
                         @Override
                         public void onGranted(List<String> permissions, boolean all) {

@@ -3,11 +3,15 @@ package com.grew.sw.cashlawn.util;
 import static android.content.ContentValues.TAG;
 import static android.content.Context.SENSOR_SERVICE;
 
+import android.annotation.SuppressLint;
 import android.app.usage.StorageStatsManager;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.net.ConnectivityManager;
 import android.net.DhcpInfo;
+import android.net.NetworkInfo;
+import android.net.Proxy;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -30,8 +34,13 @@ import com.blankj.utilcode.util.DeviceUtils;
 import com.blankj.utilcode.util.LogUtils;
 import com.grew.sw.cashlawn.App;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -43,13 +52,128 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.UUID;
 
 public class DeviceInfoUtil {
+
+    public static String getDeviceName(){
+        return Settings.Secure.getString(App.get().getContentResolver(), "bluetooth_name");
+    }
+
+    public static String getKernelVersion() {
+        try {
+            return System.getProperty("os.version");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+    /**
+     * 获取当前网络连接的类型
+     *
+     * @param context context
+     * @return int
+     */
+    public static int getNetworkState( ){
+        ConnectivityManager connManager = (ConnectivityManager) App.get().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connManager == null){
+            return 0;
+        }
+        // 若不是WIFI，则去判断是2G、3G、4G网
+        TelephonyManager telephonyManager =
+                (TelephonyManager) App.get().getSystemService(Context.TELEPHONY_SERVICE);
+        @SuppressLint("MissingPermission") int networkType = telephonyManager.getNetworkType();
+        return networkType;
+    }
+
+    public static String getTimeZoneId(){
+        TimeZone aDefault = TimeZone.getDefault();
+        return aDefault.getID();
+    }
+
+    public static String getTimeZone(){
+        TimeZone aDefault = TimeZone.getDefault();
+        return aDefault.getDisplayName(false,TimeZone.SHORT);
+    }
+
+
+    public static String getOperatorName(){
+        TelephonyManager systemService = (TelephonyManager) App.get().getSystemService(Context.TELEPHONY_SERVICE);
+        return systemService.getSimOperatorName();
+    }
+
+
+    public static String getPhoneType(){
+        TelephonyManager systemService = (TelephonyManager) App.get().getSystemService(Context.TELEPHONY_SERVICE);
+        if (systemService==null) return "0";
+        switch (systemService.getPhoneType()){
+            case TelephonyManager.PHONE_TYPE_GSM:
+                return "1";
+            case TelephonyManager.PHONE_TYPE_CDMA:
+                return "3";
+            case TelephonyManager.PHONE_TYPE_SIP:
+                return "4";
+            default:
+                return "0";
+        }
+    }
+
+
+
+    public static String isUsbDebug() {
+        return Settings.Secure.getInt(App.get().getContentResolver(), Settings.Secure.ADB_ENABLED, 0
+        ) > 0 ? "true" : "false";
+    }
+
+
+    public static String isVpn() {
+        ConnectivityManager systemService = (ConnectivityManager) App.get().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = systemService.getNetworkInfo(ConnectivityManager.TYPE_VPN);
+        if (networkInfo == null) return "false";
+        return networkInfo.isConnected() ? "true" : "false";
+    }
+
+
+    public static String isProxy() {
+        try {
+            String proxyAddress;
+            int proxyPort;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                proxyAddress = System.getProperty("http.proxyHost");
+                String property = System.getProperty("http.proxyPort");
+                if (TextUtils.isEmpty(property)) property = "-1";
+                proxyPort = ComUtil.stringToInt(property);
+            } else {
+                proxyAddress = Proxy.getHost(App.get());
+                proxyPort = Proxy.getPort(App.get());
+            }
+            return !TextUtils.isEmpty(proxyAddress) && proxyPort != -1 ? "true" : "false";
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "false";
+    }
+
     public static String getWifiInfo() {
         WifiManager wifiManager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         WifiInfo info = wifiManager.getConnectionInfo();
         return info.getBSSID() == null ? "" : info.getBSSID();
+    }
+
+
+    @SuppressLint("MissingPermission")
+    public static String getWifiMac() {
+        WifiManager wifiManager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo();
+        return info.getMacAddress() == null ? "" : info.getMacAddress();
+    }
+
+    @SuppressLint("MissingPermission")
+    public static String getWifiName() {
+        WifiManager wifiManager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo info = wifiManager.getConnectionInfo();
+        return info.getSSID() == null ? "" : info.getSSID();
     }
 
     /**
@@ -89,6 +213,17 @@ public class DeviceInfoUtil {
             }
         }
         return IMEI;
+    }
+
+    public static long getIMEI1() {
+        String IMEI;
+        try {
+            IMEI =  ((TelephonyManager) App.get().getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+            return ComUtil.stringToLong(IMEI);
+        } catch (Exception ignored) {
+
+        }
+        return 0L;
     }
 
     /**
@@ -131,10 +266,9 @@ public class DeviceInfoUtil {
      * @return
      */
     private static String[] queryWithStorageManager(Context context) {
-        String[] size = new String[]{"0GB", "0GB"};
+        String[] size = new String[]{"0", "0"};
         //5.0 查外置存储
         StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
-        float unit = 1024, unit2 = 1000;
         int version = Build.VERSION.SDK_INT;
         if (version < Build.VERSION_CODES.M) {//小于6.0
             try {
@@ -152,9 +286,8 @@ public class DeviceInfoUtil {
                         availableSize += file.getUsableSpace();
                     }
                 }
-                size[0] = getUnit(totalSize, unit);
-                size[1] = getUnit(availableSize, unit);
-                LogUtils.d("totalSize = " + getUnit(totalSize, unit) + " ,availableSize = " + getUnit(availableSize, unit));
+                size[0] = totalSize + "";
+                size[1] = availableSize + "";
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -209,8 +342,8 @@ public class DeviceInfoUtil {
 
                     }
                 }
-                size[0] = getUnit(total + systemSize, unit);
-                size[1] = getUnit(total - used, unit);
+                size[0] = (total + systemSize) + "";
+                size[1] = (total - used) + "";
             } catch (SecurityException e) {
                 Log.e(TAG, "缺少权限：permission.PACKAGE_USAGE_STATS");
             } catch (Exception e) {
@@ -230,17 +363,11 @@ public class DeviceInfoUtil {
         //可用块数量
         long availableCount = statFs.getAvailableBlocks();
         //剩余块数量，注：这个包含保留块（including reserved blocks）即应用无法使用的空间
-        strings[0] = getUnit(blockSize * blockCount, 1024);
-        strings[1] = getUnit(blockSize * availableCount, 1024);
+        strings[0] = (blockSize * blockCount) + "";
+        strings[1] = (blockSize * availableCount) + "";
         return strings;
     }
 
-    /**
-     * 进制转换
-     */
-    private static String getUnit(float size, float base) {
-        return String.format(Locale.getDefault(), " %.2f %s", size / base / base / base, "GB");
-    }
 
     /**
      * API 26 android O

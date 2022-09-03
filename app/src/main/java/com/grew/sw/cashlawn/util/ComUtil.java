@@ -48,6 +48,15 @@ public class ComUtil {
         return 0;
     }
 
+    public static Long stringToLong(String i){
+        try {
+            return Long.parseLong(i);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return 0L;
+    }
+
     public static Integer getVersionCode() {
         Context context = App.get();
         PackageManager packageManager = context.getPackageManager();

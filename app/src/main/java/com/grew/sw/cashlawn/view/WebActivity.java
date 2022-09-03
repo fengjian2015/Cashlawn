@@ -2,6 +2,7 @@ package com.grew.sw.cashlawn.view;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.grew.sw.cashlawn.R;
+import com.grew.sw.cashlawn.util.BatteryReceiver;
 import com.grew.sw.cashlawn.util.SoftKeyboardUtils;
 import com.grew.sw.cashlawn.util.UpdateUtil;
 import com.grew.sw.cashlawn.web.IWebChromeClient;
@@ -35,6 +37,7 @@ public class WebActivity extends AppCompatActivity {
     private TextView topTitle;
     private ProgressBar webLoading;
     private WebView webView;
+    private BatteryReceiver batteryReceiver;
 
     public static void openWeb(Activity activity, boolean isHome,String url) {
         Intent intent = new Intent(activity, WebActivity.class);
@@ -52,6 +55,24 @@ public class WebActivity extends AppCompatActivity {
         initView();
         initBar();
         initData();
+        initBattery();
+    }
+
+    private void initBattery() {
+        if (isHome) {
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+            batteryReceiver = new BatteryReceiver();
+            registerReceiver(batteryReceiver, intentFilter);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (isHome){
+            unregisterReceiver(batteryReceiver);
+        }
+        super.onDestroy();
     }
 
     private void initBar() {
@@ -98,7 +119,7 @@ public class WebActivity extends AppCompatActivity {
             checkFinish();
         });
 //        测试
-//        webUrl = "file:///android_asset/h5.html";
+        webUrl = "file:///android_asset/h5.html";
         if (!webUrl.startsWith("http") && !webUrl.startsWith("file")){
             webUrl = "https://"+webUrl;
         }
