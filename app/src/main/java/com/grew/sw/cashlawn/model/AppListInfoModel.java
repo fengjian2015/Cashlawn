@@ -8,8 +8,16 @@ public class AppListInfoModel implements Serializable {
     private String version_code;//APP版本号
     private String package_name; //包名
     private long first_install_time; //安装时间 yy-mm-dd hh:mm:ss
-    private long create_time;//抓取时间
     private String version_name;//版本名字
+    private String is_system;//是否系统包      1 安装包 2系统包
+
+    public String getIs_system() {
+        return is_system;
+    }
+
+    public void setIs_system(String is_system) {
+        this.is_system = is_system;
+    }
 
     public long getLast_update_time() {
         return last_update_time;
@@ -51,13 +59,6 @@ public class AppListInfoModel implements Serializable {
         this.first_install_time = first_install_time;
     }
 
-    public long getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(long create_time) {
-        this.create_time = create_time;
-    }
 
     public String getVersion_name() {
         return version_name;
@@ -75,8 +76,8 @@ public class AppListInfoModel implements Serializable {
                 ", version_code='" + version_code + '\'' +
                 ", package_name='" + package_name + '\'' +
                 ", first_install_time=" + first_install_time +
-                ", create_time=" + create_time +
                 ", version_name='" + version_name + '\'' +
+                ", is_system='" + is_system + '\'' +
                 '}';
     }
 }

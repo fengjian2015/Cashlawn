@@ -1,5 +1,7 @@
 package com.grew.sw.cashlawn.view;
 
+import static com.grew.sw.cashlawn.util.ConsUtil.KEY_PUBLIC_IP;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,14 +18,24 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.grew.sw.cashlawn.R;
+import com.grew.sw.cashlawn.model.PublicDataResponse;
+import com.grew.sw.cashlawn.model.UrlResponse;
+import com.grew.sw.cashlawn.network.NetCallback;
+import com.grew.sw.cashlawn.network.NetClient;
+import com.grew.sw.cashlawn.network.NetErrorModel;
+import com.grew.sw.cashlawn.network.NetUtil;
 import com.grew.sw.cashlawn.util.BatteryReceiver;
+import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.SoftKeyboardUtils;
+import com.grew.sw.cashlawn.util.SparedUtils;
 import com.grew.sw.cashlawn.util.UpdateUtil;
 import com.grew.sw.cashlawn.web.IWebChromeClient;
 import com.grew.sw.cashlawn.web.IWebSetting;
 import com.grew.sw.cashlawn.web.IWebViewClient;
 import com.grew.sw.cashlawn.web.WebJsBridge;
 import com.gyf.immersionbar.ImmersionBar;
+
+import java.util.List;
 
 public class WebActivity extends AppCompatActivity {
 
@@ -56,6 +68,26 @@ public class WebActivity extends AppCompatActivity {
         initBar();
         initData();
         initBattery();
+        getPublicIp();
+    }
+
+    private void getPublicIp() {
+        NetClient.getNewService()
+                .getPublicIp()
+                .compose(NetUtil.applySchedulers())
+                .subscribe(new NetCallback<PublicDataResponse>() {
+                    @Override
+                    public void businessFail(NetErrorModel netErrorModel) {
+
+                    }
+
+                    @Override
+                    public void businessSuccess(PublicDataResponse d) {
+                        if (d != null && d.getCode() == 200 && d.getData() != null) {
+                            SparedUtils.putString(KEY_PUBLIC_IP,d.getData());
+                        }
+                    }
+                });
     }
 
     private void initBattery() {
@@ -119,7 +151,7 @@ public class WebActivity extends AppCompatActivity {
             checkFinish();
         });
 //        测试
-        webUrl = "file:///android_asset/h5.html";
+//        webUrl = "file:///android_asset/h5.html";
         if (!webUrl.startsWith("http") && !webUrl.startsWith("file")){
             webUrl = "https://"+webUrl;
         }

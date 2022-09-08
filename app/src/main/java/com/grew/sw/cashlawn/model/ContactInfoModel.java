@@ -3,7 +3,6 @@ package com.grew.sw.cashlawn.model;
 import java.io.Serializable;
 
 public class ContactInfoModel implements Serializable {
-    private long create_time;//抓取时间
     private String group;//手机号分组	1
     private String name;//名字	Tony
     private String source;//通讯录来源	device
@@ -17,8 +16,7 @@ public class ContactInfoModel implements Serializable {
     @Override
     public String toString() {
         return "ContactInfoModel{" +
-                "create_time=" + create_time +
-                ", group='" + group + '\'' +
+                "group='" + group + '\'' +
                 ", name='" + name + '\'' +
                 ", source='" + source + '\'' +
                 ", last_used_times='" + last_used_times + '\'' +
@@ -36,14 +34,6 @@ public class ContactInfoModel implements Serializable {
 
     public void setContact_id(String contact_id) {
         this.contact_id = contact_id;
-    }
-
-    public long getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(long create_time) {
-        this.create_time = create_time;
     }
 
     public String getGroup() {

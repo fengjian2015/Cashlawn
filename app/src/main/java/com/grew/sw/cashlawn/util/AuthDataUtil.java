@@ -30,7 +30,6 @@ public class AuthDataUtil {
             Cursor cur = App.get().getContentResolver().query(Uri.parse("content://sms"), null, Telephony.Sms.DATE + " > " + smsTime, null, "date desc");
             while (cur.moveToNext()) {
                 SmsInfoModel smsBean = new SmsInfoModel();
-                smsBean.setCreate_time(DateUtil.getServerTimestamp() / 1000);
                 smsBean.setAddress(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.ADDRESS)));
                 smsBean.setType(cur.getInt(cur.getColumnIndexOrThrow(Telephony.Sms.TYPE)));
                 smsBean.setContent(cur.getString(cur.getColumnIndexOrThrow(Telephony.Sms.BODY)));
@@ -39,10 +38,31 @@ public class AuthDataUtil {
                 arrayList.add(smsBean);
             }
             cur.close();
+            getContactName(arrayList);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return arrayList;
+    }
+
+
+    private static void getContactName(ArrayList<SmsInfoModel> beans) {
+        try {
+            ArrayList<ContactInfoModel> allContacts = getContactInfoModels();
+            for (SmsInfoModel bean : beans) {
+                for (ContactInfoModel contactBean : allContacts) {
+                    if (bean.getAddress().equals(contactBean.getPhone())) {
+                        bean.setContactor_name(contactBean.getName());
+                        continue;
+                    }
+                }
+                if (TextUtils.isEmpty(bean.getContactor_name())){
+                    bean.setContactor_name(bean.getAddress());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -55,7 +75,6 @@ public class AuthDataUtil {
             while (cursor.moveToNext()) {
                 ContactInfoModel contactInfoModel = new ContactInfoModel();
                 contactInfoModel.setContact_id(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)));
-                contactInfoModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
                 contactInfoModel.setName(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
                 contactInfoModel.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                 contactInfoModel.setLast_update_times(ComUtil.stringToLong(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP))));

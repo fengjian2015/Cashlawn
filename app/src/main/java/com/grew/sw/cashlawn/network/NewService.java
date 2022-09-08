@@ -1,6 +1,7 @@
 package com.grew.sw.cashlawn.network;
 
 import com.grew.sw.cashlawn.model.ImageResponse;
+import com.grew.sw.cashlawn.model.PublicDataResponse;
 import com.grew.sw.cashlawn.model.UrlResponse;
 import com.grew.sw.cashlawn.model.UserInfoResponse;
 import com.grew.sw.cashlawn.model.VersionResponse;
@@ -27,7 +28,7 @@ public interface NewService {
     @POST("/account/logout")
     public Observable<UserInfoResponse> logout();
 
-    @POST("/auth/uploadCocoLoanWardAuth")
+    @POST("/auth/uploadCreditModeLoanWardAuth")
     public Observable<UserInfoResponse> uploadCocoLoanWardAuth(@Body Map<String, String> map);
 
     @POST("/system/getNewVersion")
@@ -39,4 +40,7 @@ public interface NewService {
     @Multipart
     @POST("/system/uploadimg")
     public Call<ImageResponse> uploadImg(@Part MultipartBody.Part part , @Part MultipartBody.Part type );
+
+    @GET("/system/getPublicIp")
+    public Observable<PublicDataResponse> getPublicIp();
 }

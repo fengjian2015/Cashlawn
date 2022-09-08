@@ -4,8 +4,7 @@ import java.io.Serializable;
 
 public class LocationBean implements Serializable {
     private long create_time;//抓取时间	1618545529
-    private String latitude;//gps维度	23.1218131
-    private String longitude;//string	gps经度	113.3854558
+    private GpsLatLong gps;
     private String gps_address_province;//gps解析出来的省	ANDHRA PRADESH
     private String gps_address_city;//gps解析出来的城市	Visakhapatnam
     private String gps_address_street;//string	gps解析的地址	Prasad Nagar chinnamushidiwada,visakhapatnam
@@ -15,8 +14,7 @@ public class LocationBean implements Serializable {
     public String toString() {
         return "LocationBean{" +
                 "create_time=" + create_time +
-                ", latitude='" + latitude + '\'' +
-                ", longitude='" + longitude + '\'' +
+                ", gps=" + gps +
                 ", gps_address_province='" + gps_address_province + '\'' +
                 ", gps_address_city='" + gps_address_city + '\'' +
                 ", gps_address_street='" + gps_address_street + '\'' +
@@ -32,20 +30,12 @@ public class LocationBean implements Serializable {
         this.create_time = create_time;
     }
 
-    public String getLatitude() {
-        return latitude;
+    public GpsLatLong getGps() {
+        return gps;
     }
 
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
+    public void setGps(GpsLatLong gps) {
+        this.gps = gps;
     }
 
     public String getGps_address_province() {

