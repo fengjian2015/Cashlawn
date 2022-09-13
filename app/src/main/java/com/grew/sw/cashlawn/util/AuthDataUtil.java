@@ -8,7 +8,6 @@ import android.provider.Telephony;
 import android.text.TextUtils;
 
 import com.appsflyer.AppsFlyerLib;
-import com.blankj.utilcode.util.LogUtils;
 import com.grew.sw.cashlawn.App;
 import com.grew.sw.cashlawn.model.ContactInfoModel;
 import com.grew.sw.cashlawn.model.GroupEntity;

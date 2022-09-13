@@ -13,6 +13,7 @@
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_code_false.xml" value="0.223" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_code_true.xml" value="0.223" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_ed_number.xml" value="0.223" />
+        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/utils_toast_bg.xml" value="0.1235" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_agreement.xml" value="0.264" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_main.xml" value="0.24547101449275363" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_sign.xml" value="0.18115942028985507" />
@@ -20,6 +21,7 @@
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_web.xml" value="0.24547101449275363" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/layout_update_dialog.xml" value="0.22192028985507245" />
         <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/loading.xml" value="0.22192028985507245" />
+        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/utils_toast_view.xml" value="0.1" />
       </map>
     </option>
   </component>

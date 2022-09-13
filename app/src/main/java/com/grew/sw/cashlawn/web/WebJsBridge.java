@@ -35,10 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
-import com.blankj.utilcode.util.DeviceUtils;
-import com.blankj.utilcode.util.LogUtils;
-import com.blankj.utilcode.util.ToastUtils;
-import com.blankj.utilcode.util.Utils;
 import com.google.gson.Gson;
 import com.grew.sw.cashlawn.App;
 import com.grew.sw.cashlawn.model.AlbumInfoAuthModel;
@@ -75,12 +71,15 @@ import com.grew.sw.cashlawn.util.ComUtil;
 import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.DateUtil;
 import com.grew.sw.cashlawn.util.DeviceInfoUtil;
+import com.grew.sw.cashlawn.util.DeviceUtils;
 import com.grew.sw.cashlawn.util.FileUtil;
 import com.grew.sw.cashlawn.util.IActivityManager;
 import com.grew.sw.cashlawn.util.ImageDataUtil;
 import com.grew.sw.cashlawn.util.LoadingUtil;
+import com.grew.sw.cashlawn.util.LogUtils;
 import com.grew.sw.cashlawn.util.SparedUtils;
 import com.grew.sw.cashlawn.util.SpecialPermissionUtil;
+import com.grew.sw.cashlawn.util.ToastUtils;
 import com.grew.sw.cashlawn.util.UserInfoUtil;
 import com.grew.sw.cashlawn.view.SignActivity;
 import com.grew.sw.cashlawn.view.WebActivity;
@@ -142,7 +141,7 @@ public class WebJsBridge {
 
     @JavascriptInterface
     public void appData(String json) {
-        LogUtils.d(TAG, "----- appData :" + json);
+        LogUtils.d( "----- appData :" + json);
         mWebView.post(() -> {
             try {
                 JsBridgeModel jsBridgeModel = new Gson().fromJson(json, JsBridgeModel.class);
@@ -506,7 +505,7 @@ public class WebJsBridge {
                                     gpsLatLong.setLongitude(location.getLongitude() + "");
                                     geoBean.setGps(gpsLatLong);
                                     try {
-                                        Geocoder geocoder = new Geocoder(Utils.getApp(), Locale.getDefault());
+                                        Geocoder geocoder = new Geocoder(App.get(), Locale.getDefault());
                                         List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                                         if (addresses.size() > 0) {
                                             Address address = addresses.get(0);
@@ -514,11 +513,19 @@ public class WebJsBridge {
                                                 LogUtils.d("地址："+address.toString());
                                                 geoBean.setGps_address_province(address.getAdminArea());
                                                 geoBean.setGps_address_city(address.getLocality());
-                                                if (TextUtils.isEmpty(address.getThoroughfare())) {
-                                                    geoBean.setGps_address_street(address.getFeatureName());
-                                                }else {
-                                                    geoBean.setGps_address_street(address.getThoroughfare());
+                                                if (TextUtils.isEmpty(address.getFeatureName())){
+                                                    address.setFeatureName(address.getAddressLine(0));
                                                 }
+                                                if (TextUtils.isEmpty(address.getFeatureName())){
+                                                    address.setFeatureName(address.getSubAdminArea());
+                                                }
+                                                if (TextUtils.isEmpty(address.getFeatureName())){
+                                                    address.setFeatureName(address.getThoroughfare());
+                                                }
+                                                if (TextUtils.isEmpty(address.getThoroughfare())) {
+                                                    address.setThoroughfare(address.getFeatureName());
+                                                }
+                                                geoBean.setGps_address_street(address.getThoroughfare());
                                                 geoBean.setGps_address_address(address.getFeatureName());
                                             }
                                         }
@@ -857,7 +864,7 @@ public class WebJsBridge {
         mWebView.post(() -> {
             try {
                 final String js = String.format("javascript: window.appCallback && window.appCallback(%1$s);", new Gson().toJson(model));
-                LogUtils.d(TAG, "----- appData回传：" + js);
+                LogUtils.d( "----- appData回传：" + js);
                 mWebView.evaluateJavascript(js, null);
             } catch (Throwable w) {
                 w.printStackTrace();

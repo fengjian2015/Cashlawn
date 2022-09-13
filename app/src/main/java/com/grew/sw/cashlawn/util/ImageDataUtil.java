@@ -17,12 +17,9 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
-import com.blankj.utilcode.util.LogUtils;
 import com.grew.sw.cashlawn.App;
 import com.grew.sw.cashlawn.model.AlbumInfoModel;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -70,7 +67,7 @@ public class ImageDataUtil implements LoaderManager.LoaderCallbacks<Cursor> {
                 isLoading = true;
                 new Thread(() -> {
                     albumInfoModels.clear();
-                    while (data.moveToNext()) {
+                    while (!data.isClosed() && data.moveToNext()) {
                         //查询数据
                         String imageName = data.getString(data.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME));
                         long imageAddTime = data.getLong(data.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED));

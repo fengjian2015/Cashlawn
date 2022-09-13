@@ -7,11 +7,10 @@ import android.app.Application;
 
 import com.appsflyer.AppsFlyerConversionListener;
 import com.appsflyer.AppsFlyerLib;
-import com.blankj.utilcode.util.LogUtils;
-import com.blankj.utilcode.util.Utils;
 import com.grew.sw.cashlawn.network.NetClient;
 import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.IActivityManager;
+import com.grew.sw.cashlawn.util.LogUtils;
 import com.grew.sw.cashlawn.util.SparedUtils;
 
 import java.util.Map;
@@ -24,9 +23,8 @@ public class App extends Application {
         super.onCreate();
         application = this;
         IActivityManager.init(this);
-        Utils.init(this);
-        LogUtils.getConfig().setLogSwitch(BuildConfig.DEBUG);
         NetClient.getInstance().init(BASE_URL);
+        LogUtils.setLogEnable(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().setDebugLog(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().init(APPS_FLYER_KEY, new AppsFlyerConversionListener() {
             @Override

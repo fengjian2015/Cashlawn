@@ -30,8 +30,6 @@ import android.view.WindowManager;
 
 import androidx.annotation.RequiresApi;
 
-import com.blankj.utilcode.util.DeviceUtils;
-import com.blankj.utilcode.util.LogUtils;
 import com.grew.sw.cashlawn.App;
 
 import java.io.BufferedReader;

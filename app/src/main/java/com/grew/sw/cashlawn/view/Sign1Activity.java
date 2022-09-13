@@ -20,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.appsflyer.AppsFlyerLib;
-import com.blankj.utilcode.util.ToastUtils;
 import com.grew.sw.cashlawn.App;
 import com.grew.sw.cashlawn.R;
 import com.grew.sw.cashlawn.model.UrlResponse;
@@ -34,6 +33,7 @@ import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.DateUtil;
 import com.grew.sw.cashlawn.util.LoadingUtil;
 import com.grew.sw.cashlawn.util.SparedUtils;
+import com.grew.sw.cashlawn.util.ToastUtils;
 import com.grew.sw.cashlawn.util.UserInfoUtil;
 import com.gyf.immersionbar.ImmersionBar;
 

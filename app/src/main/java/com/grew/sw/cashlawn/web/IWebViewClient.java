@@ -18,10 +18,10 @@ import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.blankj.utilcode.util.LogUtils;
 import com.grew.sw.cashlawn.App;
 import com.grew.sw.cashlawn.R;
 import com.grew.sw.cashlawn.util.IActivityManager;
+import com.grew.sw.cashlawn.util.LogUtils;
 
 
 public class IWebViewClient extends WebViewClient {
