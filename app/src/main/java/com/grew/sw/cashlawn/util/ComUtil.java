@@ -1,12 +1,17 @@
 package com.grew.sw.cashlawn.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.ExifInterface;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -20,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class ComUtil {
@@ -27,9 +33,79 @@ public class ComUtil {
     private static final int IMG_HIGHT = 800;
     private static final int COMPRESS_QUALITY = 70; //壓縮 JPEG使用的品質(70代表壓縮率為 30%)
 
-    public static boolean isNumber(String string){
+
+    public static Location getLastKnownLocation(LocationManager locationManager) {
+        try {
+            List<String> providers = locationManager.getProviders(true);
+            Location bestLocation = null;
+            for (String provider : providers) {
+                @SuppressLint("MissingPermission") Location l = locationManager.getLastKnownLocation(provider);
+                if (l == null) {
+                    continue;
+                }
+                if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
+                    bestLocation = l;
+                }
+            }
+            return bestLocation;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static final LocationListener mLocationListener = new LocationListener() {
+
+        // Provider的状态在可用、暂时不可用和无服务三个状态直接切换时触发此函数
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            LogUtils.d("onStatusChanged");
+        }
+
+        // Provider被enable时触发此函数，比如GPS被打开
+        @Override
+        public void onProviderEnabled(String provider) {
+            LogUtils.d( "onProviderEnabled");
+
+        }
+
+        // Provider被disable时触发此函数，比如GPS被关闭
+        @Override
+        public void onProviderDisabled(String provider) {
+            LogUtils.d("onProviderDisabled");
+
+        }
+
+        //当坐标改变时触发此函数，如果Provider传进相同的坐标，它就不会被触发
+        @Override
+        public void onLocationChanged(Location location) {
+            LogUtils.d(String.format("location: longitude: %f, latitude: %f", location.getLongitude(),
+                    location.getLatitude()));
+            //更新位置信息
+            locationManager.removeUpdates(mLocationListener);
+        }
+    };
+
+    private static LocationManager locationManager;
+
+    /**
+     * 监听位置变化
+     */
+    @SuppressLint("MissingPermission")
+    public static void initLocationListener() {
+        locationManager = (LocationManager) App.get().getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager == null) {
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, mLocationListener);
+    }
+
+
+
+
+    public static boolean isNumber(String string) {
         Pattern pattern = Pattern.compile("^[-+]?[0-9]");
-        if(pattern.matcher(string).matches()){
+        if (pattern.matcher(string).matches()) {
             //数字
             return true;
         } else {
@@ -39,19 +115,19 @@ public class ComUtil {
 
     }
 
-    public static Integer stringToInt(String i){
+    public static Integer stringToInt(String i) {
         try {
-           return Integer.parseInt(i);
-        }catch (Exception e){
+            return Integer.parseInt(i);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
     }
 
-    public static Long stringToLong(String i){
+    public static Long stringToLong(String i) {
         try {
             return Long.parseLong(i);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0L;
@@ -83,7 +159,8 @@ public class ComUtil {
         }
     }
 
-    public static @Nullable File compressImage(String srcImgPath) {
+    public static @Nullable
+    File compressImage(String srcImgPath) {
         //先取得原始照片的旋轉角度
         int rotate = 0;
         try {
@@ -157,6 +234,7 @@ public class ComUtil {
         }
         return compressedImgFile;
     }
+
     /**
      * 获取文件名
      *
@@ -172,9 +250,9 @@ public class ComUtil {
         return filepath;
     }
 
-    public static void appsFlyer(String evenName){
+    public static void appsFlyer(String evenName) {
         HashMap<String, Object> map = new HashMap<>();
-        if (evenName!=null && evenName.contains("|")) {
+        if (evenName != null && evenName.contains("|")) {
             String[] split = evenName.split("\\|");
             evenName = split[0];
             map.put("loan_id", split[1]);

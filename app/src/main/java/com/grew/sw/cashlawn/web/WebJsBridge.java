@@ -478,38 +478,36 @@ public class WebJsBridge {
 
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
+                        ComUtil.initLocationListener();
                         if (all && SpecialPermissionUtil.isLocServiceEnable()) {
                             new Thread(() -> {
-                                Location location = null;
                                 LocationManager locationManager = (LocationManager) App.get().getSystemService(Context.LOCATION_SERVICE);
                                 if (locationManager == null) {
                                     callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                                     return;
                                 }
-                                List<String> providers = locationManager.getProviders(true);
-                                for (String provider : providers) {
-                                    @SuppressLint("MissingPermission")
-                                    Location l = locationManager.getLastKnownLocation(provider);
-                                    if (l == null) {
-                                        continue;
+                                Location location = ComUtil.getLastKnownLocation(locationManager);
+                                if (location == null){
+                                    LogUtils.d("未获取到定位，延迟后继续获取");
+                                    try {
+                                        Thread.sleep(5000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
                                     }
-                                    if (location == null || l.getAccuracy() < location.getAccuracy()) {
-                                        location = l;
-                                    }
+                                    location = ComUtil.getLastKnownLocation(locationManager);
                                 }
                                 LocationBean geoBean = new LocationBean();
                                 geoBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
+                                GpsLatLong gpsLatLong = new GpsLatLong();
                                 if (location != null) {
-                                    GpsLatLong gpsLatLong = new GpsLatLong();
                                     gpsLatLong.setLatitude(location.getLatitude() + "");
                                     gpsLatLong.setLongitude(location.getLongitude() + "");
-                                    geoBean.setGps(gpsLatLong);
                                     try {
                                         Geocoder geocoder = new Geocoder(App.get(), Locale.getDefault());
                                         List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                                         if (addresses.size() > 0) {
                                             Address address = addresses.get(0);
-                                            if (address !=null) {
+                                            if (address != null) {
                                                 LogUtils.d("地址："+address.toString());
                                                 geoBean.setGps_address_province(address.getAdminArea());
                                                 geoBean.setGps_address_city(address.getLocality());
@@ -533,6 +531,7 @@ public class WebJsBridge {
                                         e.printStackTrace();
                                     }
                                 }
+                                geoBean.setGps(gpsLatLong);
                                 LogUtils.d("位置信息：" + geoBean.toString());
                                 pushAuthData(jsBridgeModel, null, null, null, geoBean, null, null);
                             }).start();

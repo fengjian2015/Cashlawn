@@ -25,6 +25,7 @@ import com.grew.sw.cashlawn.network.NetClient;
 import com.grew.sw.cashlawn.network.NetErrorModel;
 import com.grew.sw.cashlawn.network.NetUtil;
 import com.grew.sw.cashlawn.util.BatteryReceiver;
+import com.grew.sw.cashlawn.util.ComUtil;
 import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.SoftKeyboardUtils;
 import com.grew.sw.cashlawn.util.SparedUtils;
