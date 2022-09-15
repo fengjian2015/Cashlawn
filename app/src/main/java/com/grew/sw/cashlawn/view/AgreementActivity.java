@@ -9,6 +9,13 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.grew.sw.cashlawn.R;
+import com.grew.sw.cashlawn.model.UrlResponse;
+import com.grew.sw.cashlawn.network.NetCallback;
+import com.grew.sw.cashlawn.network.NetClient;
+import com.grew.sw.cashlawn.network.NetErrorModel;
+import com.grew.sw.cashlawn.network.NetUtil;
+import com.grew.sw.cashlawn.util.ConsUtil;
+import com.grew.sw.cashlawn.util.SparedUtils;
 import com.grew.sw.cashlawn.util.SpecialPermissionUtil;
 import com.grew.sw.cashlawn.util.UserInfoUtil;
 import com.gyf.immersionbar.ImmersionBar;
@@ -82,5 +89,33 @@ public class AgreementActivity extends AppCompatActivity {
                     });
         });
         topBack.setOnClickListener(view -> finish());
+        initData();
+    }
+
+    private void initData() {
+        NetClient.getNewService()
+                .getUrl()
+                .compose(NetUtil.applySchedulers())
+                .subscribe(new NetCallback<UrlResponse>() {
+                    @Override
+                    public void businessFail(NetErrorModel netErrorModel) {
+
+                    }
+
+                    @Override
+                    public void businessSuccess(UrlResponse d) {
+                        if (d != null && d.getCode() == 200 && d.getData() != null) {
+                            List<UrlResponse.Data> data = d.getData();
+                            for (int i= 1;i<=data.size(); i++){
+                                if (i == 1){
+                                    SparedUtils.putString(ConsUtil.KEY_URL_1,data.get(i-1).url);
+                                }else if (i == 6){
+                                    SparedUtils.putString(ConsUtil.KEY_URL_2,data.get(i-1).url);
+                                }
+                            }
+
+                        }
+                    }
+                });
     }
 }
