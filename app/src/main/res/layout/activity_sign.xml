@@ -36,7 +36,7 @@
 
     <TextView
         android:id="@+id/tvWelcome"
-        android:layout_width="103dp"
+        android:layout_width="match_parent"
         android:layout_height="33dp"
         android:text="Welcome"
         android:textColor="#ff292a2b"
@@ -47,7 +47,7 @@
         />
     <TextView
         android:id="@+id/tvHintWelcome"
-        android:layout_width="252dp"
+        android:layout_width="wrap_content"
         android:layout_height="24dp"
         android:text="Mobile Phone Number"
         android:textColor="#ff797878"
@@ -71,7 +71,7 @@
             android:gravity="center_vertical"
             >
             <TextView
-                android:layout_width="34dp"
+                android:layout_width="wrap_content"
                 android:layout_height="17dp"
                 android:text="+234"
                 android:textColor="#ff666666"
@@ -83,13 +83,13 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:textColor="#292a2b"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:layout_marginLeft="11dp"
                 android:background="@null"
                 android:inputType="number"
                 android:textColorHint="#999999"
                 android:textCursorDrawable="@drawable/et_cursor_login"
-                android:hint="Please input Phone Number"
+                android:hint="Please Input Phone Number"
                 />
             <ImageView
                 android:layout_width="wrap_content"

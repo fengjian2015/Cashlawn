@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.util.TypedValue;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -186,6 +187,12 @@ public class SignActivity extends AppCompatActivity {
     }
 
     private void checkButton() {
+        String s = etNumber.getText().toString();
+        if (TextUtils.isEmpty(s)){
+            etNumber.setTextSize( TypedValue.COMPLEX_UNIT_SP,13);
+        }else {
+            etNumber.setTextSize( TypedValue.COMPLEX_UNIT_SP,16);
+        }
         if (!pcb.isChecked()) {
             btUpgrade.setBackground(getResources().getDrawable(R.drawable.shape_button_later));
             btUpgrade.setClickable(false);
