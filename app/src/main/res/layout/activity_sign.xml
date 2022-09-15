@@ -89,7 +89,7 @@
                 android:inputType="number"
                 android:textColorHint="#999999"
                 android:textCursorDrawable="@drawable/et_cursor_login"
-                android:hint="Please Input Phone Number"
+                android:hint="Phone Number"
                 />
             <ImageView
                 android:layout_width="wrap_content"
