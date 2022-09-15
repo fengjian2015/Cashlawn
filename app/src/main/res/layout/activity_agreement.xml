@@ -42,7 +42,8 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="10dp">
+            android:layout_marginTop="10dp"
+            >
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -191,6 +192,7 @@
                 android:textSize="12sp"
                 android:layout_marginTop="4dp"
                 android:text="@string/agreement_8"
+                android:paddingBottom="20dp"
                 />
         </LinearLayout>
     </ScrollView>

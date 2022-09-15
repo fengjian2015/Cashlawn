@@ -268,6 +268,9 @@ public class Sign1Activity extends AppCompatActivity {
                             Intent intent=new Intent("loginSuccess");
                             LocalBroadcastManager.getInstance(Sign1Activity.this).sendBroadcast(intent);
                             WebActivity.openWeb(Sign1Activity.this,true,d.getData().getHomeUrl());
+                            if (d.getData().isNew()){
+                                ComUtil.appsFlyer("lawlogin");
+                            }
                             etCode.postDelayed(() -> Sign1Activity.this.finish(),500);
                         } else {
                             ToastUtils.showLong(d.getMessage());
