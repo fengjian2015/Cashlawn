@@ -23,7 +23,6 @@ public class App extends Application {
         super.onCreate();
         application = this;
         IActivityManager.init(this);
-        NetClient.getInstance().init(BASE_URL);
         LogUtils.setLogEnable(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().setDebugLog(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().init(APPS_FLYER_KEY, new AppsFlyerConversionListener() {

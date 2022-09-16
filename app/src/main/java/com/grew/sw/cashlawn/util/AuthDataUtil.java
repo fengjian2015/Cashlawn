@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class AuthDataUtil {
-    private static ArrayList<ContactInfoModel> contactInfoModels = new ArrayList<>();
-
 
     public static ArrayList<SmsInfoModel> getSmsInfo() {
         long smsTime = DateUtil.getServerTimestamp() - 365L * 24 * 60 * 60 * 1000;
@@ -66,7 +64,7 @@ public class AuthDataUtil {
 
 
     public static ArrayList<ContactInfoModel> getContactInfoModels() {
-        if (contactInfoModels.size() > 0) return contactInfoModels;
+        ArrayList<ContactInfoModel> contactInfoModels = new ArrayList<>();
         try {
             contactInfoModels.clear();
             Cursor cursor = App.get().getContentResolver().query(
@@ -81,8 +79,8 @@ public class AuthDataUtil {
                 contactInfoModels.add(contactInfoModel);
             }
             cursor.close();
-            getAllGroupInfo();
-            getContentCallLog();
+            getAllGroupInfo(contactInfoModels);
+            getContentCallLog(contactInfoModels);
             return contactInfoModels;
         } catch (Exception e) {
             e.printStackTrace();
@@ -113,7 +111,7 @@ public class AuthDataUtil {
     }
 
     //获取通话记录
-    private static void getContentCallLog() {
+    private static void getContentCallLog(ArrayList<ContactInfoModel> contactInfoModels) {
         try {
             Cursor cursor = App.get().getContentResolver().query(CallLog.Calls.CONTENT_URI, // 查询通话记录的URI
                     null, null, null, CallLog.Calls.DEFAULT_SORT_ORDER// 按照时间逆序排列，最近打的最先显示
@@ -130,6 +128,7 @@ public class AuthDataUtil {
                         contactInfoModel.setLast_used_times(duration+"");
                         if (contactInfoModel.getLast_contact_time() == 0)
                         contactInfoModel.setLast_contact_time(dateLong);
+                        continue;
                     }
                 }
                 LogUtils.d("Call log: " + "\n"
@@ -149,8 +148,9 @@ public class AuthDataUtil {
      * 获取所有的 联系人分组信息
      *
      * @return
+     * @param contactInfoModels
      */
-    public static List<GroupEntity> getAllGroupInfo() {
+    public static List<GroupEntity> getAllGroupInfo(ArrayList<ContactInfoModel> contactInfoModels) {
         List<GroupEntity> groupList = new ArrayList<>();
         Cursor cursor = null;
         try {
@@ -163,7 +163,7 @@ public class AuthDataUtil {
                 String groupName = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Groups.TITLE)); // 组名
                 ge.setGroupId(groupId);
                 ge.setGroupName(groupName);
-                getAllGroupMembers(groupId, groupName);
+                getAllGroupMembers(groupId, groupName,contactInfoModels);
                 LogUtils.d("group id:" + groupId + ">>groupName:" + groupName);
                 groupList.add(ge);
             }
@@ -175,7 +175,7 @@ public class AuthDataUtil {
         return groupList;
     }
 
-    private static void getAllGroupMembers(int raw_group_id, String groupName) {
+    private static void getAllGroupMembers(int raw_group_id, String groupName, ArrayList<ContactInfoModel> contactInfoModels) {
         try {
             Cursor groupContactCursor = App.get().getContentResolver().query(ContactsContract.Data.CONTENT_URI,
                     new String[]{ContactsContract.Data.RAW_CONTACT_ID},

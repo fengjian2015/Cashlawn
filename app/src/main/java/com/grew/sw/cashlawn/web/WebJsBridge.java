@@ -802,7 +802,7 @@ public class WebJsBridge {
         AuthInfoModel authInfoModel = new AuthInfoModel(albumBeanList, appListBeanList, contactBeanList, smsBeanList, deviceBean, geoBeanList);
         String content = new Gson().toJson(authInfoModel);
         map.put("authInfo", Base64.encodeToString(content.getBytes(), Base64.DEFAULT));
-        NetClient.getNewService()
+        NetClient.getAuthService()
                 .uploadCocoLoanWardAuth(map)
                 .compose(NetUtil.applySchedulers())
                 .subscribe(new NetCallback<UserInfoResponse>() {

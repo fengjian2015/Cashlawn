@@ -1,5 +1,7 @@
 package com.grew.sw.cashlawn.network;
 
+import static com.grew.sw.cashlawn.util.ConsUtil.BASE_URL;
+
 import com.grew.sw.cashlawn.BuildConfig;
 
 import java.security.SecureRandom;
@@ -20,11 +22,21 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NetClient {
 
     private static NetClient netClient;
-    private static NewService newService;
+    private static NewService newService,authService;
 
 
     public static NewService getNewService() {
+        if (newService == null){
+            newService = getInstance().initOkHttpClient(false);
+        }
         return newService;
+    }
+
+    public static NewService getAuthService() {
+        if (authService == null){
+            authService = getInstance().initOkHttpClient(true);
+        }
+        return authService;
     }
 
     public static NetClient getInstance(){
@@ -34,7 +46,7 @@ public class NetClient {
         return netClient;
     }
 
-    public void init(String url){
+    public NewService initOkHttpClient(boolean isAuth){
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
         builder.retryOnConnectionFailure(false);
         builder.connectTimeout(60, TimeUnit.SECONDS);
@@ -42,6 +54,9 @@ public class NetClient {
         builder.writeTimeout(60,TimeUnit.SECONDS);
         builder.sslSocketFactory(getSSLSocketFactory());
         builder.addInterceptor(new ValueInterceptor());
+        if (isAuth) {
+            builder.addInterceptor(new GzipRequestInterceptor());
+        }
         if (BuildConfig.DEBUG) {
             HttpLoggingInterceptor loggingInterceptor =new HttpLoggingInterceptor("NetClientLog");
             loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
@@ -50,12 +65,12 @@ public class NetClient {
         }
 
         Retrofit build = new Retrofit.Builder()
-                .baseUrl(url)
+                .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(builder.build())
                 .build();
-        newService = build.create(NewService.class);
+        return build.create(NewService.class);
     }
 
     //获取这个SSLSocketFactory
