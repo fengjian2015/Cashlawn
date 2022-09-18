@@ -6,11 +6,11 @@ public class ContactInfoModel implements Serializable {
     private String group;//手机号分组	1
     private String name;//名字	Tony
     private String source;//通讯录来源	device
-    private String last_used_times;//最后一次使用次数	0
+    private String last_used_times = "0";//最后一次使用次数	0
     private String phone;//电话	8602583474
     private long last_update_times;//上次更新时间	1603176737569
-    private int contact_times;//联系次数
-    private long last_contact_time;//上次联系时间	1603176737569
+    private int contact_times = 0;//联系次数
+    private long last_contact_time = 0;//上次联系时间	1603176737569
     private String contact_id;//临时id
 
     @Override

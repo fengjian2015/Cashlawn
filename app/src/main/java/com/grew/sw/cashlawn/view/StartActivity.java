@@ -32,8 +32,7 @@ public class StartActivity extends AppCompatActivity {
                 Permission.READ_CONTACTS,
                 Permission.GET_ACCOUNTS,
                 Permission.READ_EXTERNAL_STORAGE,
-                Permission.WRITE_EXTERNAL_STORAGE,
-                Permission.READ_CALL_LOG)) {
+                Permission.WRITE_EXTERNAL_STORAGE)) {
             if (!SpecialPermissionUtil.isLocServiceEnable() || !SpecialPermissionUtil.isOpenWifi()) {
                 startPermission();
                 return;

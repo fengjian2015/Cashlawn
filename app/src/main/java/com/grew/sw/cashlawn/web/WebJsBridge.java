@@ -224,6 +224,7 @@ public class WebJsBridge {
             Map<String, Object> data = jsBridgeModel.getAppData();
             JSONObject jsonData = new JSONObject(data);
             JSCommonJSModel jsCommonJSModel = new Gson().fromJson(jsonData.toString(), JSCommonJSModel.class);
+            LogUtils.d("============时间："+jsCommonJSModel.getValue());
             DateUtil.initTime(jsCommonJSModel.getValue());
         } catch (Exception e) {
             e.printStackTrace();
@@ -359,7 +360,6 @@ public class WebJsBridge {
         XXPermissions.with(mContext)
                 .permission(Permission.READ_CONTACTS)
                 .permission(Permission.GET_ACCOUNTS)
-                .permission(Permission.READ_CALL_LOG)
                 .request(new OnPermissionCallback() {
 
                     @Override
@@ -370,9 +370,7 @@ public class WebJsBridge {
                                 ContactInfoAuthModel contactInfoAuthModel = new ContactInfoAuthModel();
                                 contactInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
                                 contactInfoAuthModel.setList(contactInfoModels);
-
                                 LogUtils.d("通讯录信息：\n" + contactInfoAuthModel.toString());
-
                                 pushAuthData(jsBridgeModel, contactInfoAuthModel, null, null, null, null, null);
                             }).start();
                         } else {
@@ -814,7 +812,19 @@ public class WebJsBridge {
                     @Override
                     public void businessSuccess(UserInfoResponse data) {
                         if (200 == data.getCode()) {
-                            callJSSuccess(models.getAppAction(), models.getAppActionId(), null);
+                            if (smsBeanList !=null){
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(smsBeanList));
+                            }else if (contactBeanList !=null){
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(contactBeanList));
+                            }else if (albumBeanList !=null){
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(albumBeanList));
+                            }else if (geoBeanList !=null){
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(geoBeanList));
+                            }else if (deviceBean !=null){
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(deviceBean));
+                            }else {
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), null);
+                            }
                         } else {
                             callJSFailNet(models.getAppAction(), models.getAppActionId(), data.getMessage());
                         }
@@ -909,7 +919,12 @@ public class WebJsBridge {
                     File file = null;
                     if (photoFile != null) {
                         LogUtils.d("压缩前：" + photoFile.length());
-                        file = ComUtil.compressImage(photoFile.getAbsolutePath());
+                        try {
+                            file = ComUtil.compressImage(photoFile.getAbsolutePath());
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            file = photoFile;
+                        }
                         LogUtils.d("压缩后：" + file.length());
                     }
                     if (file == null) {

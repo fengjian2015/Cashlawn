@@ -45,7 +45,7 @@ public class AuthDataUtil {
 
     private static void getContactName(ArrayList<SmsInfoModel> beans) {
         try {
-            ArrayList<ContactInfoModel> allContacts = getContactInfoModels();
+            ArrayList<ContactInfoModel> allContacts = getContactInfoModelsName();
             for (SmsInfoModel bean : beans) {
                 for (ContactInfoModel contactBean : allContacts) {
                     if (bean.getAddress().equals(contactBean.getPhone())) {
@@ -62,6 +62,26 @@ public class AuthDataUtil {
         }
     }
 
+    public static ArrayList<ContactInfoModel> getContactInfoModelsName() {
+        ArrayList<ContactInfoModel> contactInfoModels = new ArrayList<>();
+        try {
+            contactInfoModels.clear();
+            Cursor cursor = App.get().getContentResolver().query(
+                    ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+            while (cursor.moveToNext()) {
+                ContactInfoModel contactInfoModel = new ContactInfoModel();
+                contactInfoModel.setName(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
+                contactInfoModel.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+                contactInfoModels.add(contactInfoModel);
+            }
+            cursor.close();
+            return contactInfoModels;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return contactInfoModels;
+    }
+
 
     public static ArrayList<ContactInfoModel> getContactInfoModels() {
         ArrayList<ContactInfoModel> contactInfoModels = new ArrayList<>();
@@ -75,12 +95,13 @@ public class AuthDataUtil {
                 contactInfoModel.setName(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)));
                 contactInfoModel.setPhone(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)));
                 contactInfoModel.setLast_update_times(ComUtil.stringToLong(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP))));
+                contactInfoModel.setLast_contact_time(ComUtil.stringToLong(cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.LAST_TIME_CONTACTED))));
                 contactInfoModel.setSource(getContactAccount(contactInfoModel.getContact_id()));
                 contactInfoModels.add(contactInfoModel);
             }
             cursor.close();
             getAllGroupInfo(contactInfoModels);
-            getContentCallLog(contactInfoModels);
+//            getContentCallLog(contactInfoModels);
             return contactInfoModels;
         } catch (Exception e) {
             e.printStackTrace();
@@ -194,6 +215,7 @@ public class AuthDataUtil {
                 for (ContactInfoModel contactInfoModel : contactInfoModels) {
                     if (contactId != null && contactId.equals(contactInfoModel.getContact_id())) {
                         contactInfoModel.setGroup(groupName);
+                        continue;
                     }
                 }
                 LogUtils.d("Member name is: " + contactCursor.getString(0) + "  " + contactCursor.getString(1) + " " + contactCursor.getString(2));
