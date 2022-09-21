@@ -699,7 +699,8 @@ public class WebJsBridge {
                                             deviceBean.setVideoInternal(FileUtil.getVideoInternalFiles().size());
                                             deviceBean.setAudioExternal(FileUtil.getAudioExternalFiles().size());
                                             deviceBean.setBuild_time(Build.TIME);
-                                            deviceBean.setWifiCount(DeviceInfoUtil.getWifiList().size());
+                                            deviceBean.setWifilist(DeviceInfoUtil.getWifiList());
+                                            deviceBean.setSensorcount(DeviceInfoUtil.getSensorCount());
                                             deviceBean.setTime_zone(DeviceInfoUtil.getTimeZone());
                                             deviceBean.setRelease_date(Build.TIME);
                                             deviceBean.setDevice_name(DeviceInfoUtil.getDeviceName());

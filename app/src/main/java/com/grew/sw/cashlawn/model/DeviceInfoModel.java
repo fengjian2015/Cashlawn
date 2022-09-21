@@ -3,6 +3,7 @@ package com.grew.sw.cashlawn.model;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 public class DeviceInfoModel implements Serializable {
     private long create_time;//抓取时间	1618985088
@@ -30,12 +31,13 @@ public class DeviceInfoModel implements Serializable {
     private int VideoInternal;//视频内部文件个数	0
     private int AudioExternal;//外部文件个数	2
     private long build_time;//int	版本日期
-    private int wifiCount;//WiFi个数	3
     private String time_zone;//时区	CST
     private long release_date;//int	更新日期	1499779791000
     private String device_name;//设备名称	grandpplte
     private String ImagesExternal;//图片外部文件个数	5
     private String security_patch_level;//安全补丁时间	2017-07-01
+    private List<String> wifilist;//WiFi名称
+    private String sensorcount;//传感器数量
 
     private StorageData storage;
     private GeneralData general_data;
@@ -43,13 +45,6 @@ public class DeviceInfoModel implements Serializable {
     private PublicIpData public_ip;
     private BatteryStatusData battery_status;
     private DeviceInfoData device_info;
-
-
-
-
-
-
-
 
     @Override
     public String toString() {
@@ -79,12 +74,13 @@ public class DeviceInfoModel implements Serializable {
                 ", VideoInternal=" + VideoInternal +
                 ", AudioExternal=" + AudioExternal +
                 ", build_time=" + build_time +
-                ", wifiCount=" + wifiCount +
                 ", time_zone='" + time_zone + '\'' +
                 ", release_date=" + release_date +
                 ", device_name='" + device_name + '\'' +
                 ", ImagesExternal='" + ImagesExternal + '\'' +
                 ", security_patch_level='" + security_patch_level + '\'' +
+                ", wifilist=" + wifilist +
+                ", sensorcount=" + sensorcount +
                 ", storage=" + storage +
                 ", general_data=" + general_data +
                 ", hardware=" + hardware +
@@ -92,6 +88,22 @@ public class DeviceInfoModel implements Serializable {
                 ", battery_status=" + battery_status +
                 ", device_info=" + device_info +
                 '}';
+    }
+
+    public List<String> getWifilist() {
+        return wifilist;
+    }
+
+    public void setWifilist(List<String> wifilist) {
+        this.wifilist = wifilist;
+    }
+
+    public String getSensorcount() {
+        return sensorcount;
+    }
+
+    public void setSensorcount(String sensorcount) {
+        this.sensorcount = sensorcount;
     }
 
     public long getCreate_time() {
@@ -294,13 +306,6 @@ public class DeviceInfoModel implements Serializable {
         this.build_time = build_time;
     }
 
-    public int getWifiCount() {
-        return wifiCount;
-    }
-
-    public void setWifiCount(int wifiCount) {
-        this.wifiCount = wifiCount;
-    }
 
     public String getTime_zone() {
         return time_zone;
