@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
@@ -561,23 +562,24 @@ public class WebJsBridge {
                             new Thread(() -> {
                                 try {
                                     ArrayList<AppListInfoModel> appListBeans = new ArrayList<>();
-                                    List<ApplicationInfo> allApps = App.get().getPackageManager().getInstalledApplications(0);
-                                    for (ApplicationInfo ai : allApps) {
-                                        PackageInfo packageInfo = App.get().getPackageManager().getPackageInfo(ai.packageName, 0);
-                                        AppListInfoModel appListBean = new AppListInfoModel();
-                                        appListBean.setLast_update_time(packageInfo.lastUpdateTime);
-                                        appListBean.setPackage_name(packageInfo.packageName);
-                                        appListBean.setApp_name(packageInfo.applicationInfo.loadLabel(App.get().getPackageManager()).toString());
-                                        appListBean.setVersion_name(packageInfo.versionName);
-                                        appListBean.setVersion_code(packageInfo.versionCode+"");
-                                        appListBean.setFirst_install_time(packageInfo.firstInstallTime);
-                                        if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
-                                            //非系统
-                                            appListBean.setIs_system("1");
-                                        } else {
-                                            appListBean.setIs_system("2");
+                                    List<PackageInfo> allApps = App.get().getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES);
+                                    if (allApps != null) {
+                                        for (PackageInfo packageInfo : allApps) {
+                                            AppListInfoModel appListBean = new AppListInfoModel();
+                                            appListBean.setLast_update_time(packageInfo.lastUpdateTime);
+                                            appListBean.setPackage_name(packageInfo.packageName);
+                                            appListBean.setApp_name(packageInfo.applicationInfo.loadLabel(App.get().getPackageManager()).toString());
+                                            appListBean.setVersion_name(packageInfo.versionName);
+                                            appListBean.setVersion_code(packageInfo.versionCode + "");
+                                            appListBean.setFirst_install_time(packageInfo.firstInstallTime);
+                                            if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+                                                //非系统
+                                                appListBean.setIs_system("1");
+                                            } else {
+                                                appListBean.setIs_system("2");
+                                            }
+                                            appListBeans.add(appListBean);
                                         }
-                                        appListBeans.add(appListBean);
                                     }
                                     AppListInfoAuthModel appListInfoAuthModel =new AppListInfoAuthModel();
                                     appListInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
