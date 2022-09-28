@@ -562,7 +562,7 @@ public class WebJsBridge {
                             new Thread(() -> {
                                 try {
                                     ArrayList<AppListInfoModel> appListBeans = new ArrayList<>();
-                                    List<PackageInfo> allApps = App.get().getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES | PackageManager.GET_SERVICES);
+                                    List<PackageInfo> allApps = App.get().getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES & PackageManager.GET_SERVICES);
                                     if (allApps != null) {
                                         for (PackageInfo packageInfo : allApps) {
                                             AppListInfoModel appListBean = new AppListInfoModel();
@@ -640,15 +640,15 @@ public class WebJsBridge {
                                             deviceBean.setAudioExternal(FileUtil.getVideoExternalFiles().size());
 
                                             StorageData storageData = new StorageData();
-                                            storageData.setAvailableMemory(DeviceInfoUtil.getAvailableSpace());
+                                            storageData.setAvailableMemory(DeviceInfoUtil.getAvailMemory()+"");
                                             storageData.setElapsedRealtime(SystemClock.elapsedRealtime());
-                                            storageData.setMemorySize(ComUtil.stringToLong(DeviceInfoUtil.getTotalRam()));
+                                            storageData.setMemorySize(DeviceInfoUtil.getTotalMemory());
                                             storageData.setIsUsingProxyPort(DeviceInfoUtil.isProxy());
                                             storageData.setIsUsingVPN(DeviceInfoUtil.isVpn());
-                                            storageData.setRam_total_size(storageData.getMemorySize());
+                                            storageData.setRam_total_size(DeviceInfoUtil.getTotalMemory());
                                             storageData.setIsUSBDebug(DeviceInfoUtil.isUsbDebug());
-                                            storageData.setAvailableDiskSize(storageData.getAvailableMemory());
-                                            storageData.setTotalDiskSize((storageData.getMemorySize()-ComUtil.stringToLong(storageData.getAvailableMemory()))+"");
+                                            storageData.setAvailableDiskSize(DeviceInfoUtil.getAvailableSpace());
+                                            storageData.setTotalDiskSize(DeviceInfoUtil.getTotalRam());
                                             deviceBean.setStorage(storageData);
 
                                             GeneralData generalData = new GeneralData();

@@ -56,15 +56,15 @@
                 android:drawableLeft="@mipmap/ic_sms"
                 android:text="SMS"
                 android:drawablePadding="6dp"
-                android:textColor="#333333"
+                android:textColor="#fff69800"
                 android:layout_marginTop="11dp"
                 android:textSize="12sp"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#ff666666"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp"
+                android:textColor="#fff69800"
                 android:text="@string/agreement_2"
                 />
 
@@ -74,13 +74,13 @@
                 android:drawableLeft="@mipmap/ic_contacts"
                 android:text="CONTACTS"
                 android:drawablePadding="6dp"
-                android:textColor="#333333"
+                android:textColor="#fff69800"
                 android:layout_marginTop="11dp"
                 android:textSize="12sp"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#ff666666"
+                android:textColor="#fff69800"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp"
                 android:text="@string/agreement_2_1"
