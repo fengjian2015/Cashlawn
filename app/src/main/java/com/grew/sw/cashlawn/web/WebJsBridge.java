@@ -66,6 +66,7 @@ import com.grew.sw.cashlawn.model.UserInfoResponse;
 import com.grew.sw.cashlawn.network.NetCallback;
 import com.grew.sw.cashlawn.network.NetClient;
 import com.grew.sw.cashlawn.network.NetErrorModel;
+import com.grew.sw.cashlawn.network.NetUpload;
 import com.grew.sw.cashlawn.network.NetUtil;
 import com.grew.sw.cashlawn.util.AuthDataUtil;
 import com.grew.sw.cashlawn.util.ComUtil;
@@ -92,6 +93,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -99,12 +102,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSource;
 
 public class WebJsBridge {
     private WebView mWebView;
@@ -935,38 +943,66 @@ public class WebJsBridge {
                         callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "file is null");
                         return;
                     }
-                    RequestBody imageBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-                    MultipartBody.Part txtBodyPart = MultipartBody.Part.createFormData("type", "jpg");
-                    MultipartBody.Part imageBodyPart = MultipartBody.Part.createFormData("file", file.getName(), imageBody);
-                    Call<ImageResponse> repos = NetClient.getNewService().uploadImg(txtBodyPart, imageBodyPart);
-                    repos.enqueue(new Callback<ImageResponse>() {
+                    NetUpload.okHttpUploadImage(file, new Callback() {
                         @Override
-                        public void onResponse(Call<ImageResponse> call, Response<ImageResponse> response) {
+                        public void onFailure(Call call, IOException e) {
                             LoadingUtil.dismiss();
-                            try {
-                                if (response.code() == 200) {
-                                    JSCommonJSModel jsCommonJSModel = new JSCommonJSModel();
-                                    jsCommonJSModel.setValue(response.body().getData());
-                                    callJSSuccess(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), new Gson().toJson(jsCommonJSModel));
-                                } else {
-                                    callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), response.message());
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
-                            }
+                            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
                         }
 
                         @Override
-                        public void onFailure(Call<ImageResponse> call, Throwable t) {
+                        public void onResponse(Call call, Response response) throws IOException {
                             LoadingUtil.dismiss();
-                            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), t.toString());
+                            if (response.isSuccessful()){
+                                try {
+                                    String responseBody = NetUpload.getResponseBody(response);
+                                    ImageResponse imageResponse=new Gson().fromJson(responseBody,ImageResponse.class);
+                                    JSCommonJSModel jsCommonJSModel = new JSCommonJSModel();
+                                    jsCommonJSModel.setValue(imageResponse.getData());
+                                    callJSSuccess(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), new Gson().toJson(jsCommonJSModel));
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                    callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
+                                }
+                            }else {
+                                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "");
+                            }
                         }
                     });
+//                    RequestBody imageBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+//                    MultipartBody.Part txtBodyPart = MultipartBody.Part.createFormData("type", "jpg");
+//                    MultipartBody.Part imageBodyPart = MultipartBody.Part.createFormData("file", file.getName(), imageBody);
+//                    Call<ImageResponse> repos = NetClient.getNewService().uploadImg(txtBodyPart, imageBodyPart);
+//                    repos.enqueue(new Callback<ImageResponse>() {
+//                        @Override
+//                        public void onResponse(Call<ImageResponse> call, Response<ImageResponse> response) {
+//                            LoadingUtil.dismiss();
+//                            try {
+//                                if (response.code() == 200) {
+//                                    JSCommonJSModel jsCommonJSModel = new JSCommonJSModel();
+//                                    jsCommonJSModel.setValue(response.body().getData());
+//                                    callJSSuccess(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), new Gson().toJson(jsCommonJSModel));
+//                                } else {
+//                                    callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), response.message());
+//                                }
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onFailure(Call<ImageResponse> call, Throwable t) {
+//                            LoadingUtil.dismiss();
+//                            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), t.toString());
+//                        }
+//                    });
                 }).start();
             } else {
                 callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "cancel selection");
             }
         }
     }
+
+
 }

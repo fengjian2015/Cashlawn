@@ -73,6 +73,24 @@ public class NetClient {
         return build.create(NewService.class);
     }
 
+    public OkHttpClient initUploadOkHttpClient(){
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.retryOnConnectionFailure(false);
+        builder.connectTimeout(60, TimeUnit.SECONDS);
+        builder.readTimeout(60,TimeUnit.SECONDS);
+        builder.writeTimeout(60,TimeUnit.SECONDS);
+        builder.sslSocketFactory(getSSLSocketFactory());
+        builder.addInterceptor(new ValueInterceptor());
+        if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor loggingInterceptor =new HttpLoggingInterceptor("NetClientLog");
+            loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
+            loggingInterceptor.setColorLevel(Level.INFO);
+            builder.addInterceptor(loggingInterceptor);
+        }
+
+        return builder.build();
+    }
+
     //获取这个SSLSocketFactory
     public static SSLSocketFactory getSSLSocketFactory() {
         try {
