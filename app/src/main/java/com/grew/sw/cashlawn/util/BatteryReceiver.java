@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.BatteryManager;
 
+import com.grew.sw.cashlawn.App;
+
 import java.util.Locale;
 
 public class BatteryReceiver extends BroadcastReceiver {
@@ -20,7 +22,10 @@ public class BatteryReceiver extends BroadcastReceiver {
             Float level= Float.valueOf(intent.getExtras().getInt("level"));
             if (level != null && batteryTotal != null) {
                 SparedUtils.putString(ConsUtil.KEY_BATTERY_LEVEL , String.format(Locale.getDefault(), " %.2f", level / batteryTotal));
-
+                if (App.open_power == -1){
+                    App.open_power = (int)(level / batteryTotal * 100);
+                }
+                App.complete_apply_power = (int)(level / batteryTotal * 100);
             }
 
         }catch (Exception e){

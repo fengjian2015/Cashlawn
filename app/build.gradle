@@ -9,8 +9,8 @@ android {
         applicationId "com.grew.sw.cashlawn"
         minSdk 21
         targetSdk 32
-        versionCode 19
-        versionName "1.0.14"
+        versionCode 20
+        versionName "1.0.15"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -65,4 +65,9 @@ dependencies {
     api 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
     api 'com.squareup.retrofit2:converter-gson:2.9.0'
     api 'com.geyifeng.immersionbar:immersionbar:3.2.2'
+    //goole获取gaid
+    api 'com.google.android.gms:play-services-base:15.0.1'
+    api 'com.google.android.gms:play-services-ads:15.0.1'
+    implementation "com.android.installreferrer:installreferrer:2.2"
+
 }

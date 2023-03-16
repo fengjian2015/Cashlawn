@@ -93,11 +93,16 @@ public class ComUtil {
      */
     @SuppressLint("MissingPermission")
     public static void initLocationListener() {
-        locationManager = (LocationManager) App.get().getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager == null) {
-            return;
+        try {
+            locationManager = (LocationManager) App.get().getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager == null) {
+                return;
+            }
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, mLocationListener);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000, 10, mLocationListener);
+
     }
 
 

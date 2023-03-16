@@ -38,6 +38,7 @@ import com.grew.sw.cashlawn.network.NetCallback;
 import com.grew.sw.cashlawn.network.NetClient;
 import com.grew.sw.cashlawn.network.NetErrorModel;
 import com.grew.sw.cashlawn.network.NetUtil;
+import com.grew.sw.cashlawn.util.BatteryReceiver;
 import com.grew.sw.cashlawn.util.ComUtil;
 import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.SparedUtils;
@@ -55,6 +56,7 @@ public class SignActivity extends AppCompatActivity {
     private Button btUpgrade;
     public static String phoneNumber;
     private WebView webView;
+    private BatteryReceiver batteryReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,10 @@ public class SignActivity extends AppCompatActivity {
                 }
             }
         }, new IntentFilter( "loginSuccess"));
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        batteryReceiver = new BatteryReceiver();
+        registerReceiver(batteryReceiver, intentFilter);
     }
 
     private void initWebView() {
@@ -230,6 +236,7 @@ public class SignActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         IWebSetting.clearWebView(webView);
+        unregisterReceiver(batteryReceiver);
         super.onDestroy();
     }
 }

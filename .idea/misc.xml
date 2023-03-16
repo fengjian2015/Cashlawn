@@ -1,31 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DesignSurface">
-    <option name="filePathToZoomLevelMap">
-      <map>
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/et_cursor.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/et_cursor_login.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/ic_back.xml" value="0.236" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/ic_launcher_background.xml" value="0.152" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/selector_check.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_button_later.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_button_upgrade.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_code_false.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_code_true.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/shape_ed_number.xml" value="0.223" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/drawable/utils_toast_bg.xml" value="0.1235" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_agreement.xml" value="0.264" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_main.xml" value="0.24547101449275363" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_sign.xml" value="0.1956521739130435" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_sign1.xml" value="0.22192028985507245" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/activity_web.xml" value="0.24547101449275363" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/layout_update_dialog.xml" value="0.22192028985507245" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/loading.xml" value="0.22192028985507245" />
-        <entry key="..\:/android/demo/Cashlawn/app/src/main/res/layout/utils_toast_view.xml" value="0.1" />
-      </map>
-    </option>
-  </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

@@ -644,6 +644,13 @@ public class WebJsBridge {
                                         LogUtils.d("----------开启获取数据");
                                         DeviceInfoModel deviceBean = new DeviceInfoModel();
                                         try {
+                                            deviceBean.setWifi_state(DeviceInfoUtil.getCurrentNetworkRssi());
+                                            deviceBean.setGaid(DeviceInfoUtil.getGAID());
+                                            deviceBean.setBack_num(IActivityManager.back_num);
+                                            deviceBean.setOpen_time(DateUtil.getTimeFromLongYMDHMS(App.getAppStartTime()));
+                                            deviceBean.setOpen_power(App.open_power);
+                                            deviceBean.setComplete_apply_power(App.complete_apply_power);
+
                                             deviceBean.setCreate_time(DateUtil.getServerTimestamp()/1000);
                                             deviceBean.setAudioExternal(FileUtil.getVideoExternalFiles().size());
 

@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IActivityManager {
+    public static int back_num;
+    private static int activityAount = 0;
     private static Activity mActivity;
 
     public static Activity getActivity() {
@@ -26,7 +28,7 @@ public class IActivityManager {
 
             @Override
             public void onActivityStarted(@NonNull Activity activity) {
-
+                activityAount++;
             }
 
             @Override
@@ -42,7 +44,11 @@ public class IActivityManager {
 
             @Override
             public void onActivityStopped(@NonNull Activity activity) {
-
+                activityAount--;
+                if (activityAount == 0){
+                    //后台
+                    back_num++;
+                }
             }
 
             @Override

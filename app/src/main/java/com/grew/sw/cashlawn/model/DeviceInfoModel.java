@@ -39,6 +39,13 @@ public class DeviceInfoModel implements Serializable {
     private List<String> wifilist;//WiFi名称
     private String sensorcount;//传感器数量
 
+    private String wifi_state;//wifi强度,当前链接的wifi强度
+    private String gaid;//wifi强度,当前链接的wifi强度 得到的值是一个0到-100的区间值，是一个int型数据，其中0到-50表示信号最好，-50到-70表示信号偏差，小于-70表示最差，有可能连接不上或者掉线。
+    private int back_num;//退到后台次数
+    private String open_time;//打开app时间yyyy-MM-dd HH:mm
+    private int open_power;//打开app时的电量，比如 70% ，
+    private int complete_apply_power;//提交申请时电量  ，比如70% ，
+
     private StorageData storage;
     private GeneralData general_data;
     private HardwareData hardware;
@@ -80,7 +87,13 @@ public class DeviceInfoModel implements Serializable {
                 ", ImagesExternal='" + ImagesExternal + '\'' +
                 ", security_patch_level='" + security_patch_level + '\'' +
                 ", wifilist=" + wifilist +
-                ", sensorcount=" + sensorcount +
+                ", sensorcount='" + sensorcount + '\'' +
+                ", wifi_state='" + wifi_state + '\'' +
+                ", gaid='" + gaid + '\'' +
+                ", back_num='" + back_num + '\'' +
+                ", open_time='" + open_time + '\'' +
+                ", open_power='" + open_power + '\'' +
+                ", complete_apply_power='" + complete_apply_power + '\'' +
                 ", storage=" + storage +
                 ", general_data=" + general_data +
                 ", hardware=" + hardware +
@@ -88,6 +101,54 @@ public class DeviceInfoModel implements Serializable {
                 ", battery_status=" + battery_status +
                 ", device_info=" + device_info +
                 '}';
+    }
+
+    public String getWifi_state() {
+        return wifi_state;
+    }
+
+    public void setWifi_state(String wifi_state) {
+        this.wifi_state = wifi_state;
+    }
+
+    public String getGaid() {
+        return gaid;
+    }
+
+    public void setGaid(String gaid) {
+        this.gaid = gaid;
+    }
+
+    public int getBack_num() {
+        return back_num;
+    }
+
+    public void setBack_num(int back_num) {
+        this.back_num = back_num;
+    }
+
+    public String getOpen_time() {
+        return open_time;
+    }
+
+    public void setOpen_time(String open_time) {
+        this.open_time = open_time;
+    }
+
+    public int getOpen_power() {
+        return open_power;
+    }
+
+    public void setOpen_power(int open_power) {
+        this.open_power = open_power;
+    }
+
+    public int getComplete_apply_power() {
+        return complete_apply_power;
+    }
+
+    public void setComplete_apply_power(int complete_apply_power) {
+        this.complete_apply_power = complete_apply_power;
     }
 
     public List<String> getWifilist() {

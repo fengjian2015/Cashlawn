@@ -31,6 +31,8 @@ import android.view.WindowManager;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.grew.sw.cashlawn.App;
 
 import java.io.BufferedReader;
@@ -176,6 +178,37 @@ public class DeviceInfoUtil {
         return info.getSSID() == null ? "" : info.getSSID();
     }
 
+    // 获取当前热点最新的信号强度
+    public static String getCurrentNetworkRssi() {
+        WifiManager wifiManager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        if(wifiInfo==null) return "";
+        return String.valueOf(wifiInfo.getRssi());
+    }
+
+    //获取 GAID
+    public static String getGAID(){
+        String gaid = "";
+        AdvertisingIdClient.Info adInfo = null;
+        try {
+            adInfo = AdvertisingIdClient.getAdvertisingIdInfo(App.get().getApplicationContext());
+        } catch (IOException e ) {
+            // Unrecoverable error connecting to Google Play services (e.g.,
+            // the old version of the service doesn't support getting AdvertisingId).
+            Log.e("getGAID", "IOException");
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // Google Play services is not available entirely.
+            Log.e("getGAID", "GooglePlayServicesNotAvailableException");
+        } catch (Exception e) {
+            Log.e("getGAID", "Exception:"+e.toString());
+            // Encountered a recoverable error connecting to Google Play services.
+        }
+        if (adInfo != null) {
+            gaid = adInfo.getId();
+        }
+        return gaid;
+    }
+
     /**
      * wifi列表
      *
@@ -188,7 +221,7 @@ public class DeviceInfoUtil {
         if (scanWifiList != null && scanWifiList.size() > 0) {
             for (int i = 0; i < scanWifiList.size(); i++) {
                 ScanResult scanResult = scanWifiList.get(i);
-                if (!TextUtils.isEmpty(scanResult.SSID)) {
+                if (!TextUtils.isEmpty(scanResult.SSID) && !wifiList.contains(scanResult.SSID)) {
                     wifiList.add(scanResult.SSID);
                 }
             }
