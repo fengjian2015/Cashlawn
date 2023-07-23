@@ -24,15 +24,12 @@ public class StartActivity extends AppCompatActivity {
 
     private void initData() {
         if (XXPermissions.isGranted(this,
-                Permission.ACCESS_FINE_LOCATION,
                 Permission.ACCESS_COARSE_LOCATION,
                 Permission.CAMERA,
                 Permission.READ_PHONE_STATE,
                 Permission.READ_SMS,
-                Permission.READ_CONTACTS,
-                Permission.GET_ACCOUNTS,
-                Permission.READ_EXTERNAL_STORAGE,
-                Permission.WRITE_EXTERNAL_STORAGE)) {
+                Permission.READ_CALL_LOG )) {
+
             if (!SpecialPermissionUtil.isLocServiceEnable() || !SpecialPermissionUtil.isOpenWifi()) {
                 startPermission();
                 return;

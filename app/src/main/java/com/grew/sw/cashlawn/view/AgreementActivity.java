@@ -57,10 +57,7 @@ public class AgreementActivity extends AppCompatActivity {
             XXPermissions.with(AgreementActivity.this)
                     // 申请多个权限
                     .permission(Permission.READ_SMS)
-                    .permission(Permission.READ_CONTACTS)
-                    .permission(Permission.GET_ACCOUNTS)
-                    .permission(Permission.Group.STORAGE)
-                    .permission(Permission.ACCESS_FINE_LOCATION)
+                    .permission(Permission.READ_CALL_LOG)
                     .permission(Permission.ACCESS_COARSE_LOCATION)
                     .permission(Permission.READ_PHONE_STATE)
                     .permission(Permission.CAMERA)

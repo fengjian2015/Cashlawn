@@ -2,9 +2,9 @@ package com.grew.sw.cashlawn.util;
 
 public class ConsUtil {
     //正式
-    public static final String BASE_URL = "https://api.cashlawnob.com";
+//    public static final String BASE_URL = "https://api.cashlawnob.com";
     //测试
-//    public static final String BASE_URL = "http://112.124.4.191:7004";
+    public static final String BASE_URL = "http://121.41.164.237:7004";
 
     //预加载地址
     //    正式

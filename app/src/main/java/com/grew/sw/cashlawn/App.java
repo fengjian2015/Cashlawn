@@ -27,7 +27,7 @@ public class App extends Application {
         application = this;
         appStartTime = DateUtil.getServerTimestamp();
         IActivityManager.init(this);
-        LogUtils.setLogEnable(BuildConfig.DEBUG);
+        LogUtils.setLogEnable(true);
         AppsFlyerLib.getInstance().setDebugLog(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().init(APPS_FLYER_KEY, new AppsFlyerConversionListener() {
             @Override

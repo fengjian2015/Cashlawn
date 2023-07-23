@@ -6,9 +6,11 @@ import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.appsflyer.AppsFlyerLib;
 import com.grew.sw.cashlawn.App;
+import com.grew.sw.cashlawn.model.CallLogInfo;
 import com.grew.sw.cashlawn.model.ContactInfoModel;
 import com.grew.sw.cashlawn.model.GroupEntity;
 import com.grew.sw.cashlawn.model.SmsInfoModel;
@@ -35,7 +37,7 @@ public class AuthDataUtil {
                 arrayList.add(smsBean);
             }
             cur.close();
-            getContactName(arrayList);
+//            getContactName(arrayList);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,36 +134,68 @@ public class AuthDataUtil {
     }
 
     //获取通话记录
-    private static void getContentCallLog(ArrayList<ContactInfoModel> contactInfoModels) {
+    public static List<CallLogInfo> getContentCallLog() {
+        List<CallLogInfo> tempList = new ArrayList<>();
+
+        Cursor cursor = null;
         try {
-            Cursor cursor = App.get().getContentResolver().query(CallLog.Calls.CONTENT_URI, // 查询通话记录的URI
+            cursor = App.get().getContentResolver().query(CallLog.Calls.CONTENT_URI, // 查询通话记录的URI
                     null, null, null, CallLog.Calls.DEFAULT_SORT_ORDER// 按照时间逆序排列，最近打的最先显示
             );
-            if(cursor == null) return;
+            if (cursor == null){
+                return tempList;
+            }
             while (cursor.moveToNext()) {
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.CACHED_NAME));  //姓名
-                String number = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER));  //号码
-                long dateLong = cursor.getLong(cursor.getColumnIndexOrThrow(CallLog.Calls.DATE)); //获取通话日期
+                String phoneNum = cursor.getString(cursor.getColumnIndexOrThrow(CallLog.Calls.NUMBER));  //号码
+                long callTimestamp = cursor.getLong(cursor.getColumnIndexOrThrow(CallLog.Calls.DATE)); //获取通话日期
                 int duration = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.DURATION));//获取通话时长，值为多少秒
-                for (ContactInfoModel contactInfoModel : contactInfoModels) {
-                    if (contactInfoModel.getPhone().equals(number)) {
-                        contactInfoModel.setContact_times(contactInfoModel.getContact_times() + 1);
-                        contactInfoModel.setLast_used_times(duration+"");
-                        if (contactInfoModel.getLast_contact_time() == 0)
-                        contactInfoModel.setLast_contact_time(dateLong);
-                        continue;
-                    }
+                int type = cursor.getInt(cursor.getColumnIndexOrThrow(CallLog.Calls.TYPE)); //获取通话类型：1.呼入2.呼出3.未接
+
+                CallLogInfo item = new CallLogInfo();
+                item.setCallName(name);
+                item.setCallNumber(phoneNum);
+                item.setCallTime(TimeUtil.timestampToStr(callTimestamp));
+                item.setCallDuration(String.valueOf(duration));
+
+                switch (type){
+                    case CallLog.Calls.INCOMING_TYPE:
+                        item.setCallType(2);
+                        break;
+
+                    case CallLog.Calls.OUTGOING_TYPE:
+                        item.setCallType(1);
+                        break;
+
+                    case CallLog.Calls.MISSED_TYPE:
+                        item.setCallType(3);
+                        break;
+
+                    case CallLog.Calls.REJECTED_TYPE:
+                        item.setCallType(4);
+                        break;
+
+                    default:
+                        item.setCallType(0);
+                        break;
                 }
-                LogUtils.d("Call log: " + "\n"
-                        + "name: " + name + "\n"
-                        + "phone number: " + number + "\n"
-                        + "phone dateLong: " + dateLong + "\n"
-                );
+
+                tempList.add(item);
             }
+
+            Log.w("--x--", "getCallLog:" + tempList);
+
             cursor.close();
+
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (cursor != null){
+                cursor.close();
+            }
         }
+
+        return tempList;
     }
 
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+    <!-- Android 9.0 上部分域名时使用 http -->
+<!--    <domain-config cleartextTrafficPermitted="true">-->
+<!--        <domain includeSubdomains="true">192.168.1.115</domain>-->
+<!--    </domain-config>-->
+</network-security-config>

@@ -84,10 +84,10 @@ public class ImageDataUtil implements LoaderManager.LoaderCallbacks<Cursor> {
                         albumBean.setHeight(imageHeight+"");
                         albumBean.setUpdateTime(DateUtil.getTimeFromLongYMDHMS(take_time));
                         ExifInterface exifInterface;
-                        if (mimeType!=null && mimeType.toLowerCase().contains("jpeg")  || mimeType.toLowerCase().contains("jpg")) {
+                        if (mimeType!=null && (mimeType.toLowerCase().contains("jpeg")  || mimeType.toLowerCase().contains("jpg"))) {
                             try {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    Long id = data.getLong(data.getColumnIndexOrThrow(MediaStore.MediaColumns._ID));
+                                    long id = data.getLong(data.getColumnIndexOrThrow(MediaStore.MediaColumns._ID));
                                     //通过id构造Uri
                                     Uri uri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 //                            //构造输入流

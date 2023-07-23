@@ -3,6 +3,7 @@ package com.grew.sw.cashlawn.view;
 import static com.grew.sw.cashlawn.util.ConsUtil.HOME_URL;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.content.BroadcastReceiver;
@@ -54,7 +55,7 @@ public class SignActivity extends AppCompatActivity {
     private TextView tvLine, ptv;
     private CheckBox pcb;
     private Button btUpgrade;
-    public static String phoneNumber;
+    private String phoneNumber;
     private WebView webView;
     private BatteryReceiver batteryReceiver;
 
@@ -188,7 +189,7 @@ public class SignActivity extends AppCompatActivity {
 
         btUpgrade.setOnClickListener(view -> {
             phoneNumber = etNumber.getText().toString();
-            startActivity(new Intent(this,Sign1Activity.class));
+            Sign1Activity.start(SignActivity.this, phoneNumber);
         });
     }
 
@@ -200,18 +201,18 @@ public class SignActivity extends AppCompatActivity {
             etNumber.setTextSize( TypedValue.COMPLEX_UNIT_SP,16);
         }
         if (!pcb.isChecked()) {
-            btUpgrade.setBackground(getResources().getDrawable(R.drawable.shape_button_later));
+            btUpgrade.setBackground(AppCompatResources.getDrawable(this, R.drawable.shape_button_later));
             btUpgrade.setClickable(false);
             btUpgrade.setEnabled(false);
             return;
         }
-        if (TextUtils.isEmpty(etNumber.getText()) || etNumber.getText().length() != 10) {
-            btUpgrade.setBackground(getResources().getDrawable(R.drawable.shape_button_later));
+        if (TextUtils.isEmpty(s) || s.length() != 10) {
+            btUpgrade.setBackground(AppCompatResources.getDrawable(this, R.drawable.shape_button_later));
             btUpgrade.setClickable(false);
             btUpgrade.setEnabled(false);
             return;
         }
-        btUpgrade.setBackground(getResources().getDrawable(R.drawable.shape_button_upgrade));
+        btUpgrade.setBackground(AppCompatResources.getDrawable(this, R.drawable.shape_button_upgrade));
         btUpgrade.setClickable(true);
         btUpgrade.setEnabled(true);
     }

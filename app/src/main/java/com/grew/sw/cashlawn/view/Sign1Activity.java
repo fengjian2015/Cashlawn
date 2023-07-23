@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -12,6 +13,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -54,6 +56,7 @@ public class Sign1Activity extends AppCompatActivity {
     //秒
     private long codeTime = 60;
     private long smsSendTime;
+    private String phoneNum = "";
 
     private Handler handler = new Handler() {
         @Override
@@ -72,10 +75,28 @@ public class Sign1Activity extends AppCompatActivity {
         }
     };
 
+
+    public static void start(Activity activity, String phoneNum){
+        if (activity == null || TextUtils.isEmpty(phoneNum)){
+            return;
+        }
+        Intent intent = new Intent(activity, Sign1Activity.class);
+        intent.putExtra("phoneNum", phoneNum);
+        activity.startActivity(intent);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign1);
+
+        Intent intent = getIntent();
+        if (intent != null){
+            phoneNum = intent.getStringExtra("phoneNum");
+        }
+
+
         initBar();
         initView();
         sendCode();
@@ -98,10 +119,9 @@ public class Sign1Activity extends AppCompatActivity {
         etCode.setFocusableInTouchMode(true);
         etCode.requestFocus();
 
-        String phoneNumber = SignActivity.phoneNumber;
-        if (phoneNumber.length() == 10) {
-            phoneNumber = phoneNumber.substring(7);
-            tvCodeHint.setText("xxxxx" + phoneNumber);
+        if (!TextUtils.isEmpty(phoneNum) && phoneNum.length() == 10) {
+            String temp = phoneNum.substring(7);
+            tvCodeHint.setText("xxxxx" + temp);
         }
 
         etCode.setFilters(new InputFilter[]{new InputFilter.LengthFilter(4)});
@@ -138,6 +158,9 @@ public class Sign1Activity extends AppCompatActivity {
 
         @Override
         public void afterTextChanged(Editable s) {
+            if (s == null){
+                return;
+            }
             int length = s.length();
             //字符串内容存入数组
             char[] c = new char[4];
@@ -203,7 +226,7 @@ public class Sign1Activity extends AppCompatActivity {
 
     private void sendCode() {
         Map<String, String> map = new HashMap<>();
-        map.put("phone", SignActivity.phoneNumber);
+        map.put("phone", phoneNum);
         NetClient.getNewService()
                 .sendCode(map)
                 .compose(NetUtil.applySchedulers())
@@ -235,7 +258,7 @@ public class Sign1Activity extends AppCompatActivity {
 
     private void login(){
         Map<String, String> map = new HashMap<>();
-        map.put("Phone", SignActivity.phoneNumber);
+        map.put("Phone", phoneNum);
         map.put("Code", etCode.getText().toString());
         map.put("deviceModel", Build.MODEL);
         map.put("mobilePhoneBrands", Build.BRAND);
@@ -261,7 +284,7 @@ public class Sign1Activity extends AppCompatActivity {
                     public void businessSuccess(UserInfoResponse d) {
                         if (d != null && d.getCode() == 200 && d.getData() != null) {
                             UserInfoResponse.Data data = d.getData();
-                            data.setMobileNumber(SignActivity.phoneNumber);
+                            data.setMobileNumber(phoneNum);
                             data.setAppVersion(ComUtil.getVersionName());
                             data.setDevName("android");
                             UserInfoUtil.save(d.getData());
