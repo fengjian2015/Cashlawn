@@ -9,8 +9,8 @@ android {
         applicationId "com.grew.sw.cashlawn"
         minSdk 23
         targetSdk 32
-        versionCode 20
-        versionName "1.0.15"
+        versionCode 120
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
