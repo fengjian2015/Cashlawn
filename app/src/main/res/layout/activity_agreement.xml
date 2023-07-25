@@ -72,7 +72,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:drawableLeft="@mipmap/ic_contacts"
-                android:text="CONTACTS"
+                android:text="Call History"
                 android:drawablePadding="6dp"
                 android:textColor="#fff69800"
                 android:layout_marginTop="11dp"
@@ -83,7 +83,7 @@
                 android:textColor="#fff69800"
                 android:textSize="12sp"
                 android:layout_marginTop="4dp"
-                android:text="@string/agreement_2_1"
+                android:text="@string/agreement_2_21"
                 />
 
             <TextView

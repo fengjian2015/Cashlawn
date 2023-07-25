@@ -27,7 +27,7 @@ public class App extends Application {
         application = this;
         appStartTime = DateUtil.getServerTimestamp();
         IActivityManager.init(this);
-        LogUtils.setLogEnable(true);
+        LogUtils.setLogEnable(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().setDebugLog(BuildConfig.DEBUG);
         AppsFlyerLib.getInstance().init(APPS_FLYER_KEY, new AppsFlyerConversionListener() {
             @Override
@@ -38,8 +38,12 @@ public class App extends Application {
                     if ("Organic".equals((String) map.get(attrName))) {
                         SparedUtils.putString(ConsUtil.KEY_AF_CHANNEL, (String) map.get(attrName));
                     } else if ("Non-organic".equals((String) map.get(attrName))) {
-                        String media_source = map.get("media_source").toString();
-                        SparedUtils.putString(ConsUtil.KEY_AF_CHANNEL, media_source);
+                        Object obj = map.get("media_source");
+                        if (obj != null){
+                            String media_source = obj.toString();
+                            SparedUtils.putString(ConsUtil.KEY_AF_CHANNEL, media_source);
+                        }
+
                     }
                 }
             }

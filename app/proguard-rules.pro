@@ -16,6 +16,7 @@
 ################common###############
  #实体类不参与混淆
 -keep class com.jess.arms.widget.** { *; } #自定义控件不参与混淆
+-keep class com.grew.sw.cashlawn.model.** { *; } #自定义控件不参与混淆
 
 -keep class com.w66mobile.app.module.** { *; } #协议包不参与混淆
 -keep class * implements android.os.Parcelable {

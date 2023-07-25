@@ -2,12 +2,9 @@ package com.grew.sw.cashlawn.web;
 
 import static android.app.Activity.RESULT_OK;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -25,23 +22,16 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.webkit.JavascriptInterface;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
 
 import com.google.gson.Gson;
 import com.grew.sw.cashlawn.App;
 import com.grew.sw.cashlawn.model.AlbumInfoAuthModel;
-import com.grew.sw.cashlawn.model.AlbumInfoModel;
 import com.grew.sw.cashlawn.model.AppListInfoAuthModel;
 import com.grew.sw.cashlawn.model.AppListInfoModel;
 import com.grew.sw.cashlawn.model.AppsFlyerModel;
@@ -51,7 +41,6 @@ import com.grew.sw.cashlawn.model.CallLogInfo;
 import com.grew.sw.cashlawn.model.CallLogInfoAuthModel;
 import com.grew.sw.cashlawn.model.ContactInfoAuthModel;
 import com.grew.sw.cashlawn.model.ContactInfoBackModel;
-import com.grew.sw.cashlawn.model.ContactInfoModel;
 import com.grew.sw.cashlawn.model.DeviceInfoData;
 import com.grew.sw.cashlawn.model.DeviceInfoModel;
 import com.grew.sw.cashlawn.model.GeneralData;
@@ -99,10 +88,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -110,15 +96,8 @@ import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
+
 
 public class WebJsBridge {
 
@@ -914,7 +893,10 @@ public class WebJsBridge {
                                 callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(geoBeanList));
                             }else if (deviceBean !=null){
                                 callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(deviceBean));
-                            }else {
+                            } else if (callLogInfoAuthModel != null){
+                                callJSSuccess(models.getAppAction(), models.getAppActionId(), new Gson().toJson(callLogInfoAuthModel));
+                            }
+                            else {
                                 callJSSuccess(models.getAppAction(), models.getAppActionId(), null);
                             }
                         } else {
@@ -974,9 +956,6 @@ public class WebJsBridge {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null || App.get() == null){
-            return;
-        }
         if (requestCode == REQUEST_SELECT_CONTACTS) {
             processContactBack(resultCode, data);
 
